@@ -1,0 +1,54 @@
+# Dependências instaladas
+node_modules/
+.pnpm-store/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+# uv.lock e .python-version são propositalmente commits (instalações reproduzíveis + Python fixo)
+
+# Caches de ferramentas Python
+.ruff_cache/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage/
+.cache/
+
+# Saída de build
+dist/
+build/
+.angular/
+tmp/
+
+# Configurações e segredos locais
+# Ignora qualquer variação de .env, exceto o template público.
+.env
+.env.*
+!.env.example
+
+# Chaves e certificados
+# Nunca deveriam estar no repositório. Este ignore é uma rede de segurança:
+# o plano é nunca ter chave no projeto, mas o git não pode aceitar se alguém
+# baixar um arquivo assim na pasta para testar. Ignorado pela extensão:
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Sistema operacional / editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
