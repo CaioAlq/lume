@@ -64,7 +64,7 @@ docs(db): adiciona modelagem inicial do banco
 **Tipos:** `feat` · `fix` · `docs` · `refactor` · `test` · `chore` · `build` · `ci` ·
 `perf` · `style`
 
-**Escopos iniciais:** `db` · `api` · `worker` · `web` · `infra`. Crie um escopo novo só
+**Escopos iniciais:** `db` · `api` · `mailer` · `worker` · `web` · `infra`. Crie um escopo novo só
 quando surgir uma área nova do projeto, não para uma tarefa.
 
 Linha do assunto com até 72 caracteres. Se precisar explicar o porquê, use o corpo do
