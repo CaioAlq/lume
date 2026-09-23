@@ -59,7 +59,7 @@ que tudo o que ela escreveu fique atribuído a ela (base da auditoria).
 | Coluna | O que guarda |
 |---|---|
 | `id` | UUIDv7 |
-| `customer_id` | FK → `customer`. Exatamente um cliente por ticket |
+| `customer_id` | FK → `customer`. **Quem abriu o ticket.** Outras pessoas podem ter mensagens nele (ex.: um colega que respondeu um encaminhamento) |
 | `staff_id` | FK → `staff`. **O responsável atual**, não quem escreveu cada mensagem. Nulo até alguém assumir |
 | `status` | estado do ciclo de vida — ver seção *Estados* |
 | `archived` | booleano, **independente** do status (um spam é arquivado sem ser resolvido) |
@@ -80,6 +80,7 @@ Uma tabela só, com as falas de todos intercaladas, para a conversa ser lida em 
 | `staff_id` | FK → `staff`. Preenchido quando o autor é um atendente (humano ou LLM) |
 | `body` | texto da mensagem |
 | `recorded_at` | hora em que **o nosso servidor** registrou a mensagem (P12) |
+| `message_id_header` | o `Message-ID` do e-mail, copiado do cabeçalho — **único**. Não termina em `_id` porque não é FK: é um texto que veio do e-mail |
 
 > `recorded_at` e não `received_at`: a mesma coluna vale para o e-mail que chega do
 > cliente e para a resposta que o atendente escreve.
@@ -96,11 +97,71 @@ linguagens, e um dia divergiria.
 |---|---|
 | Toda mensagem tem **exatamente um** autor | `CHECK (num_nonnulls(customer_id, staff_id) = 1)` |
 | Um cliente por endereço | `UNIQUE (customer.email)` |
+| Um e-mail é processado uma vez só | `UNIQUE (message.message_id_header)` |
 | Nenhuma referência para registro inexistente | FKs em todas as colunas `*_id` |
 
 Por que não "coluna de tipo + um `author_id`": isso é **associação polimórfica**. O
 `author_id` apontaria para duas tabelas, então não poderia ter FK, e o banco aceitaria
 qualquer UUID (P15).
+
+---
+
+## Threading: como uma resposta encontra o seu ticket
+
+**O e-mail não tem id de conversa.** Cada e-mail tem o seu próprio `Message-ID`, e a
+resposta aponta para o e-mail **imediatamente anterior**, como uma FK para o pai:
+
+```
+                Message-ID    In-Reply-To
+seg  cliente    CAA1k3        —
+qua  Lume       lume-8f3a     CAA1k3
+qui  cliente    CAB7x9        lume-8f3a     ← escrito pelo Gmail do cliente, não pelo Lume
+```
+
+- `Message-ID`: o id deste e-mail, criado por quem envia.
+- `In-Reply-To`: o `Message-ID` da mensagem respondida.
+- `References`: a cadeia de ids da conversa. Útil como rede de segurança, mas quem
+  escreve é o programa de e-mail de cada pessoa, e alguns cortam a lista.
+
+**O Lume cria o id de conversa que o e-mail não tem: é o `ticket.id`.** Por isso a
+conversa não depende de nenhum cliente de e-mail.
+
+### Guardar o id de toda mensagem
+
+O `message_id_header` é gravado em **todas** as mensagens:
+
+- **as que chegam:** lido do cabeçalho `Message-ID`;
+- **as que o Lume envia:** o Lume gera o `Message-ID` no envio e grava na mesma linha.
+
+Guardar só o do primeiro e-mail não funciona: o cliente responde ao e-mail **do Lume**,
+então o `In-Reply-To` que volta é o id de uma mensagem enviada pelo Lume.
+
+### Como o Lume decide o ticket de um e-mail que chega
+
+```
+1. In-Reply-To bate com algum message_id_header?   → ticket dessa mensagem
+2. algum id do References bate?                    → ticket dessa mensagem
+3. nada bateu                                      → ticket NOVO
+```
+
+**Na dúvida, ticket novo, nunca adivinhar.** Um ticket duplicado aparece para o atendente,
+que liga os dois. Uma resposta no ticket errado some dentro de outra conversa. É o mesmo
+princípio *fail-safe* do `.gitignore`.
+
+**O assunto não decide nada.** Pode ser editado, e muitos clientes escrevem "Ajuda" ou
+"Dúvida". No máximo, serve de pista para o atendente.
+
+### Processar o mesmo e-mail duas vezes
+
+Se o worker ler um e-mail, gravar e cair antes de marcar como processado, vai ler de novo.
+O `UNIQUE` em `message_id_header` faz o segundo `INSERT` falhar. **Esse erro não é falha:**
+o código de ingestão trata como "já processado" (`ON CONFLICT DO NOTHING`) e segue.
+
+### Destinatários da resposta
+
+Quando o atendente responde, o e-mail vai para **todos que participam do ticket**, não só
+para quem o abriu (decisão da P22). Onde a lista de participantes fica guardada ainda está
+em aberto (ver abaixo).
 
 ---
 
@@ -136,14 +197,16 @@ trabalha. **Ainda não definidos** (ver abaixo).
 
 Não preencher por suposição — cada uma é uma decisão.
 
-1. **Threading.** Quando o cliente responde, como o sistema descobre a qual ticket aquele
-   e-mail pertence? *(estacionada desde a P1)*
+1. ~~**Threading.**~~ Resolvido — ver a seção *Threading*.
 2. **Estados internos.** Quais são os momentos pelos quais a IA faz o ticket passar
    (classificar, redigir, aguardar aprovação...)? E como representar: uma coluna `status`
    só, com um mapeamento para o que o cliente vê, ou duas colunas?
 3. **Rascunho da LLM.** No modo rascunho, a LLM escreve e o humano aprova. Um rascunho
    ainda não enviado **é uma `message`**? Se for, aparece na conversa antes de ser
    enviado. Se não for, mora onde?
+   **Amarrada ao `message_id_header`:** rascunho não enviado não tem `Message-ID`. A
+   coluna só pode ser `NOT NULL` se rascunho **não** for uma `message`. (O `UNIQUE` do
+   Postgres aceita vários nulos.)
 4. **LLM ou humano.** Como o sistema sabe que um `staff` é a LLM? Ela não faz login, os
    humanos fazem.
 5. **Ligar tickets.** O atendente liga um ticket a outro ("já está sendo tratado no ticket
@@ -151,3 +214,8 @@ Não preencher por suposição — cada uma é uma decisão.
    é a resposta certa)*
 6. **Auditoria da IA.** Onde ficam modelo, versão do prompt, latência, confiança e se o
    humano corrigiu?
+7. **Participantes.** O cliente manda o primeiro e-mail com um colega em cópia (`Cc`). O
+   colega nunca escreve, mas deve receber as respostas. Onde o endereço dele fica
+   guardado? Hoje, em lugar nenhum. *(P22)*
+8. **Gravar e enviar.** O Lume grava a mensagem e depois envia, ou envia e depois grava?
+   O que acontece em cada ordem se o segundo passo falhar?
