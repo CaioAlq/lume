@@ -1,0 +1,24 @@
+services:                     # cada "service" vira um container
+  database:                   # serviço; vira o hostname na rede do Compose
+    image: pgvector/pgvector:pg18        # imagem e versão a baixar
+
+    environment:              # variáveis de ambiente DENTRO do container
+      POSTGRES_PASSWORD: ${DB_PASSWORD}   # ${...} = valor lido do arquivo .env
+      POSTGRES_DB: ${DB_NAME}
+
+    ports:
+      - "127.0.0.1:${DB_PORT}:5432"   # porta host:porta do container
+
+    volumes:                  # "onde_guardar:pasta_dentro_do_container"
+      - db_data:/var/lib/postgresql
+
+    healthcheck:              # como saber se o banco está PRONTO
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s            # testa a cada 5 segundos
+      timeout: 3s             # cada teste tem 3s para responder
+      retries: 10             # 10 falhas seguidas = "unhealthy"
+
+    restart: unless-stopped   # se cair, sobe de novo (a não ser que você pare)
+
+volumes:                      # declara os volumes nomeados usados acima
+  db_data:
