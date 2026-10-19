@@ -11,6 +11,18 @@ pergunte antes.
 
 ---
 
+## Fatos do ambiente
+
+Pontos em que a memória do modelo costuma estar desatualizada. Valem mais que ela.
+
+- **Lockfiles são commitados**, nunca vão para o `.gitignore`: `bun.lock` (e o antigo
+  binário `bun.lockb`), `pnpm-lock.yaml` e `uv.lock`.
+- **`.angular/`** é cache do Angular CLI e vai no `.gitignore`.
+- **Postgres 18:** o volume do container monta em `/var/lib/postgresql`, sem o `/data`
+  no final (ver `compose.yaml`).
+
+---
+
 ## Idioma
 
 | Em inglês | Em português |
