@@ -108,6 +108,8 @@ O arquivo tem o nome da tabela, com underscore: `staff_session.ts`, não `staff-
 
 **Coluna dentro de `` sql`...` ``** — sempre com `${}`: `` sql`${table.email} = lower(${table.email})` ``.
 Sem o `${}`, `lower(table.email)` vai para o SQL como texto literal, e a migração gerada quebra.
+Um **array** do JavaScript dentro de `` sql`...` `` vira uma lista de parâmetros (`($1, $2)`), não um
+array do Postgres: para um `text[]`, monte com `` sql`ARRAY[${sql.join(valores, sql`, `)}]::text[]` ``.
 
 **`id`** — sempre UUIDv7 gerado pelo banco, com o template `sql`:
 
