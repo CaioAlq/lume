@@ -25,7 +25,9 @@ caminho.
 | `apps/api/src/db/schema/index.ts` | reexporta todas as tabelas |
 | `apps/api/drizzle.config.ts` | configuração do `drizzle-kit` |
 | `apps/api/drizzle/` | migrações geradas; vão para o git |
-| `apps/api/test/db/<tabela>.spec.ts` | testes das regras do banco, um arquivo por tabela |
+| `apps/api/test/db/schema/<tabela>.spec.ts` | testes das regras de cada tabela, espelhando `src/db/schema/<tabela>.ts` |
+| `apps/api/test/db/schema/index.spec.ts` | regras que valem para todas as tabelas (ex.: datas com fuso) |
+| `apps/api/test/db/helpers.ts` | funções comuns aos testes do banco (não é teste) |
 | `apps/api/test/setup.ts` | prepara o banco descartável dos testes (ver *Testes*) |
 
 ## Conexão: `apps/api/src/db/client.ts`
@@ -195,7 +197,8 @@ O **nome exibido** da IA é decisão do projeto e não está na modelagem: se ni
 
 ## Testes
 
-As regras do banco têm testes em `apps/api/test/db/`, um arquivo por tabela. Eles são a prova de
+As regras do banco têm testes em `apps/api/test/db/schema/`, um arquivo por tabela, no mesmo caminho
+e com o mesmo nome do arquivo do schema. Eles são a prova de
 que a tarefa terminou: **a tarefa só está pronta quando `bun run test` passa**.
 
 Como funcionam: antes de tudo, o `apps/api/test/setup.ts` cria um banco descartável no Postgres do
@@ -205,7 +208,7 @@ conexão abre. Precisa do banco no ar: `bun run db:up`, da raiz.
 
 - **Teste falhou: corrija o código, não o teste.** Os testes escrevem regras da modelagem;
   mudar um teste é mudar uma decisão do projeto, e isso se pergunta antes.
-- **Tabela nova: crie o `<tabela>.spec.ts` dela** com as regras de
+- **Tabela nova: crie o `apps/api/test/db/schema/<tabela>.spec.ts` dela** com as regras de
   `docs/data-model/rules.md`, no mesmo formato dos que já existem.
 - O teste insere linhas direto com SQL, então não depende de nomes de propriedades do schema.
 

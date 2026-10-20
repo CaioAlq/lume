@@ -1,7 +1,7 @@
 // Regras da tabela customer (docs/data-model/tables-core.md e rules.md).
 import { describe, expect, test } from 'bun:test';
 import { sql } from 'drizzle-orm';
-import { CHECK_VIOLATION, expectRejected, rows, UNIQUE_VIOLATION, unique } from './helpers.ts';
+import { CHECK_VIOLATION, expectRejected, rows, UNIQUE_VIOLATION, unique } from '../helpers.ts';
 
 describe('customer', () => {
   test('o banco gera o id como UUIDv7', async () => {

@@ -11,7 +11,7 @@ Bun + TypeScript, Drizzle sobre Postgres 18. As regras do projeto inteiro estão
 | Pasta | O que tem |
 |---|---|
 | `apps/api/src/<modulo>/` | código do módulo |
-| `apps/api/test/<modulo>/` | testes do módulo, no mesmo caminho do `src/` |
+| `apps/api/test/<modulo>/` | testes do módulo: cada `.spec.ts` espelha o arquivo que testa (`src/db/schema/customer.ts` → `test/db/schema/customer.spec.ts`) |
 | `apps/api/docs/<modulo>.md` | o doc do módulo: como o código dele deve ser escrito |
 
 Módulos hoje: **`db`** (conexão, schema e migrações; doc em `apps/api/docs/db.md`).
