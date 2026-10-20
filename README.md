@@ -18,7 +18,7 @@ Mapa completo em [`docs/architecture.md`](docs/architecture.md).
 
 ```bash
 cp .env.example .env               # e troque os valores marcados
-docker compose up -d database      # Postgres 18 com pgvector
+bun run db:up                      # liga o OrbStack (no Mac) e sobe o Postgres 18
 bun install
 bun run typecheck
 bun run test

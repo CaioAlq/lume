@@ -185,7 +185,7 @@ que a tarefa terminou: **a tarefa só está pronta quando `bun run test` passa**
 Como funcionam: antes de tudo, o `test/setup.ts` cria um banco descartável no Postgres do
 `.env`, aplica as migrações de `drizzle/` e conecta **pelo próprio `src/db/client.ts`**. No fim,
 apaga o banco. Então um `bun run test` verde também prova que as migrações aplicam e que a
-conexão abre. Precisa do banco no ar: `docker compose up -d database`.
+conexão abre. Precisa do banco no ar: `bun run db:up`, da raiz.
 
 - **Teste falhou: corrija o código, não o teste.** Os testes escrevem regras da modelagem;
   mudar um teste é mudar uma decisão do projeto, e isso se pergunta antes.
