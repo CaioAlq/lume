@@ -16,8 +16,9 @@ Bun + TypeScript, Drizzle sobre Postgres 18. As regras do projeto inteiro estão
 
 Módulos hoje: **`db`** (conexão, schema e migrações; doc em `apps/api/docs/db.md`).
 
-**Módulo novo:** crie as três partes juntas. O doc começa com o cabeçalho que liga o doc às
-pastas dele:
+**Módulo novo:** comece pelo teste (ver *Testes primeiro* no `AGENTS.md` da raiz): escreva o teste
+em `apps/api/test/<modulo>/`, veja falhar, e só então o código e o doc. O doc começa com o
+cabeçalho que liga o doc às pastas dele:
 
 ```markdown
 ---

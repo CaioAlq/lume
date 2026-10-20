@@ -63,11 +63,37 @@ Decisão de arquitetura nova vira um ADR em `docs/adr/`, numerado (`0002-...md`)
 
 ---
 
+## Testes primeiro
+
+**Todo comportamento novo começa por um teste que falha**, em qualquer parte do projeto: regra do
+banco, endpoint da api, tela do web, etapa do pipeline do worker, leitura e envio de e-mail do
+mailer. Motivo e histórico em `docs/adr/0003-testes-antes-do-codigo.md`.
+
+1. Escreva o teste a partir dos docs (`docs/` e `apps/<app>/docs/`), em `apps/<app>/test/<modulo>/`,
+   no mesmo caminho do código.
+2. Rode e veja o teste **falhar pelo motivo certo** (o comportamento não existe ainda), não por erro
+   de import ou de digitação.
+3. Só então escreva o código, até o teste passar.
+4. Se a tarefa já veio com testes escritos, eles são a especificação: implemente até passarem.
+
+**Bug encontrado vira teste primeiro:** um teste que reproduz o bug e falha, depois a correção.
+
+**Teste escreve uma decisão do projeto.** Mudar ou apagar um teste para ele passar é mudar uma
+decisão: pergunte antes.
+
+| Parte | Testes com |
+|---|---|
+| apps e pacotes TypeScript (api, shared) | `bun test` |
+| web (Angular) | o runner de testes do Angular, definido quando o app nascer |
+| mailer e worker (Python) | `pytest`, via `uv run pytest` |
+
+---
+
 ## Antes de terminar
 
-Rode, da raiz, **`bun run typecheck`** e **`bun run test`**. A tarefa só está pronta quando os
-dois passam. Se um teste falhar, corrija o código, não o teste: os testes escrevem regras
-do projeto, e mudar um teste é mudar uma decisão.
+Rode, da raiz, **`bun run typecheck`** e **`bun run test`** (e o `uv run pytest` dos apps Python,
+quando existirem). A tarefa só está pronta quando tudo passa. Se um teste falhar, corrija o código,
+não o teste.
 
 ---
 
