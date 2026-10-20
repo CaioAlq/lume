@@ -4,21 +4,63 @@ Helpdesk por e-mail: um endereço é o único canal de suporte de um app. Uma LL
 classifica os e-mails por urgência, encontra casos parecidos já resolvidos e redige
 respostas; um humano revisa.
 
-A modelagem do banco está em `docs/data-model/` (comece pelo `overview.md`) e é a fonte da verdade. **Não mude uma
-decisão registrada lá por conta própria** (ex.: criar coluna de ordem, trocar as duas FKs
-de autor por um `author_id` genérico). Se achar que ela está errada, diga por quê e
-pergunte antes.
+Este é o único `AGENTS.md` do projeto e vale para tudo. O que é de um app fica no doc geral
+dele; **leia o do app antes de mexer nele**:
 
-**Antes de mexer numa área, leia o doc dela em `docs/`.** O cabeçalho `globs` de cada doc
-diz quais pastas ele cobre (ex.: `docs/db.md` cobre `api/src/schema/**`).
+| App | Doc geral |
+|---|---|
+| api | `apps/api/api.md` |
+| web | `apps/web/web.md` (nasce junto com o app; ainda não existe) |
+
+---
+
+## Estrutura
+
+Monorepo com workspaces do Bun. Mapa completo e o porquê em `docs/architecture.md` e
+`docs/adr/0001-estrutura-do-monorepo.md`.
+
+```
+apps/<app>/          um app por processo (hoje só apps/api)
+  <app>.md           doc geral do app: o que faz, módulos, comandos
+  docs/<modulo>.md   um doc por módulo, não por arquivo
+  src/<modulo>/      código, organizado por módulo
+  test/<modulo>/     testes, no mesmo caminho do src/
+packages/shared/     tipos e contratos que a api e o web dividem
+docs/                docs do projeto inteiro: arquitetura, modelagem, decisões (adr/)
+```
+
+---
+
+## Docs
+
+A modelagem do banco está em `docs/data-model/` (comece pelo `overview.md`) e é a fonte da
+verdade. **Não mude uma decisão registrada lá por conta própria** (ex.: criar coluna de ordem,
+trocar as duas FKs de autor por um `author_id` genérico). Se achar que ela está errada, diga
+por quê e pergunte antes.
+
+**Antes de mexer numa área, leia o doc dela.** O cabeçalho `globs` de cada doc diz quais
+pastas ele cobre (ex.: `apps/api/docs/db.md` cobre `apps/api/src/db/**`).
+
+Decisão de arquitetura nova vira um ADR em `docs/adr/`, numerado (`0002-...md`).
+
+---
+
+## Comandos (da raiz)
+
+| Comando | Para quê |
+|---|---|
+| `bun install` | instala as dependências de todos os apps e pacotes |
+| `docker compose up -d database` | sobe o Postgres (o `.env` sai do `.env.example`) |
+| `bun run typecheck` | typecheck de todos os workspaces |
+| `bun run test` | testes de todos os workspaces (precisa do banco no ar) |
 
 ---
 
 ## Antes de terminar
 
-De dentro de `api/`, rode **`bun run typecheck`** e **`bun run test`**. A tarefa só está
-pronta quando os dois passam. O `test` precisa do banco no ar (`docker compose up -d database`).
-Se um teste falhar, corrija o código, não o teste (ver *Testes* em `docs/db.md`).
+Rode, da raiz, **`bun run typecheck`** e **`bun run test`**. A tarefa só está pronta quando os
+dois passam. Se um teste falhar, corrija o código, não o teste: os testes escrevem regras
+do projeto, e mudar um teste é mudar uma decisão.
 
 ---
 

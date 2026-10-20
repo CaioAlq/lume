@@ -1,7 +1,7 @@
-// Ajudantes dos testes de regra do banco. As consultas passam pelo src/db.ts de verdade.
+// Ajudantes dos testes de regra do banco. As consultas passam pelo src/db/client.ts de verdade.
 import { expect } from 'bun:test';
 import type { SQL } from 'drizzle-orm';
-import { db } from '../../src/db.ts';
+import { db } from '../../src/db/client.ts';
 
 // Códigos de erro do Postgres para as regras que o banco garante.
 export const CHECK_VIOLATION = '23514';

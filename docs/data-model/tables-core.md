@@ -1,6 +1,6 @@
 ---
 description: Tabelas principais: customer, staff, staff_session, ticket e message (colunas e constraints)
-globs: api/src/schema/**, api/drizzle/**
+globs: apps/api/src/db/schema/**, apps/api/drizzle/**, apps/api/test/db/**
 related: docs/data-model/tables-support.md, docs/data-model/rules.md
 ---
 

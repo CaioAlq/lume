@@ -1,6 +1,6 @@
 ---
 description: Tabelas de apoio: ticket_participant, ticket_event, draft, ai_run, ticket_embedding e job
-globs: api/src/schema/**, api/drizzle/**
+globs: apps/api/src/db/schema/**, apps/api/drizzle/**, apps/api/test/db/**
 related: docs/data-model/tables-core.md, docs/data-model/rules.md
 ---
 
