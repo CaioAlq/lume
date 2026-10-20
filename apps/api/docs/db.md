@@ -15,20 +15,20 @@ vale mais.
 
 | Arquivo | O que tem |
 |---|---|
-Caminhos a partir de `apps/api/`. O módulo é `db`: o código fica em `src/db/` e os testes em
-`test/db/`, no mesmo caminho.
+O módulo é `db`: o código fica em `apps/api/src/db/` e os testes em `apps/api/test/db/`, no mesmo
+caminho.
 
 | Arquivo | O que tem |
 |---|---|
-| `src/db/client.ts` | a conexão (`db`) que o resto da api importa |
-| `src/db/schema/<tabela>.ts` | uma tabela por arquivo; o nome do arquivo é o nome da tabela |
-| `src/db/schema/index.ts` | reexporta todas as tabelas |
-| `drizzle.config.ts` | configuração do `drizzle-kit` |
-| `drizzle/` | migrações geradas; vão para o git |
-| `test/db/<tabela>.spec.ts` | testes das regras do banco, um arquivo por tabela |
-| `test/setup.ts` | prepara o banco descartável dos testes (ver *Testes*) |
+| `apps/api/src/db/client.ts` | a conexão (`db`) que o resto da api importa |
+| `apps/api/src/db/schema/<tabela>.ts` | uma tabela por arquivo; o nome do arquivo é o nome da tabela |
+| `apps/api/src/db/schema/index.ts` | reexporta todas as tabelas |
+| `apps/api/drizzle.config.ts` | configuração do `drizzle-kit` |
+| `apps/api/drizzle/` | migrações geradas; vão para o git |
+| `apps/api/test/db/<tabela>.spec.ts` | testes das regras do banco, um arquivo por tabela |
+| `apps/api/test/setup.ts` | prepara o banco descartável dos testes (ver *Testes*) |
 
-## Conexão: `src/db/client.ts`
+## Conexão: `apps/api/src/db/client.ts`
 
 Use o driver `node-postgres` com um **`Pool`** e passe o schema:
 
@@ -71,7 +71,7 @@ O `.env` fica na **raiz** do projeto, mas a api roda de dentro de `apps/api/`, e
 o `.env` da pasta atual. Por isso, todo script do `package.json` que precisa do banco roda
 com `bun --env-file=../../.env ...`. Não copie o `.env` para dentro de `apps/api/`.
 
-## `drizzle.config.ts`
+## `apps/api/drizzle.config.ts`
 
 ```ts
 import { defineConfig } from 'drizzle-kit';
@@ -179,11 +179,11 @@ O **nome exibido** da IA é decisão do projeto e não está na modelagem: se ni
 
 ## Testes
 
-As regras do banco têm testes em `test/db/`, um arquivo por tabela. Eles são a prova de
+As regras do banco têm testes em `apps/api/test/db/`, um arquivo por tabela. Eles são a prova de
 que a tarefa terminou: **a tarefa só está pronta quando `bun run test` passa**.
 
-Como funcionam: antes de tudo, o `test/setup.ts` cria um banco descartável no Postgres do
-`.env`, aplica as migrações de `drizzle/` e conecta **pelo próprio `src/db/client.ts`**. No fim,
+Como funcionam: antes de tudo, o `apps/api/test/setup.ts` cria um banco descartável no Postgres do
+`.env`, aplica as migrações de `apps/api/drizzle/` e conecta **pelo próprio `apps/api/src/db/client.ts`**. No fim,
 apaga o banco. Então um `bun run test` verde também prova que as migrações aplicam e que a
 conexão abre. Precisa do banco no ar: `bun run db:up`, da raiz.
 
@@ -201,6 +201,6 @@ conexão abre. Precisa do banco no ar: `bun run db:up`, da raiz.
 - [ ] índice em toda FK usada em busca ou `JOIN`
 - [ ] nenhum `onDelete` que não esteja na modelagem
 - [ ] se a tarefa criou a tabela `staff`: migração `--custom` com a linha da IA
-- [ ] `src/db/client.ts` com `Pool` e `schema`, sem `pg-proxy`
+- [ ] `apps/api/src/db/client.ts` com `Pool` e `schema`, sem `pg-proxy`
 - [ ] migração gerada com `generate`, sem `push`
 - [ ] `bun run typecheck` e `bun run test` passam (da raiz do projeto)

@@ -1,5 +1,5 @@
 // Roda antes de todos os testes (ver bunfig.toml). Cria um banco descartável no Postgres
-// do .env, aponta o src/db/client.ts para ele e aplica as migrações de apps/api/drizzle. No fim, apaga.
+// do .env, aponta o apps/api/src/db/client.ts para ele e aplica as migrações de apps/api/drizzle. No fim, apaga.
 // Assim todo `bun run test` também prova que as migrações aplicam e que a conexão abre.
 import { afterAll } from 'bun:test';
 import { existsSync } from 'node:fs';
@@ -46,14 +46,14 @@ function withTimeout<T>(promise: Promise<T>, what: string): Promise<T> {
   return Promise.race([
     promise,
     new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(`${what} não terminou em ${TIMEOUT_MS / 1000}s. A conexão do src/db/client.ts abre?`)), TIMEOUT_MS),
+      setTimeout(() => reject(new Error(`${what} não terminou em ${TIMEOUT_MS / 1000}s. A conexão do apps/api/src/db/client.ts abre?`)), TIMEOUT_MS),
     ),
   ]);
 }
 
 process.env.DB_NAME = testDb;
 try {
-  // Importa depois de trocar o DB_NAME, para o src/db/client.ts conectar no banco descartável.
+  // Importa depois de trocar o DB_NAME, para o apps/api/src/db/client.ts conectar no banco descartável.
   const { db } = await import('../src/db/client.ts');
   await withTimeout(migrate(db, { migrationsFolder: MIGRATIONS }), 'Aplicar as migrações');
   afterAll(async () => {
