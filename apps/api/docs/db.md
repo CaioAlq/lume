@@ -157,6 +157,9 @@ e o `worker` são Python e gravam no mesmo banco.
 Regras:
 
 - **Nunca `drizzle-kit push`.** Ele aplica sem gerar arquivo; o histórico se perde.
+- **Rode `bun run typecheck` antes do `generate`.** O TypeScript acusa coluna que não existe mais
+  (ex.: renomeou `password_hash` para `passwordHash` e um `check` ainda usa o nome antigo). Sem
+  isso, o `generate` grava SQL quebrado, como `AND  IS NOT NULL`, sem dar erro.
 - **Gere a migração depois de atualizar da `main`.** O Drizzle só roda migrações mais novas
   que a última aplicada; uma migração com data mais antiga, mergeada depois, é pulada em
   silêncio.
@@ -217,5 +220,6 @@ conexão abre. Precisa do banco no ar: `bun run db:up`, da raiz.
 - [ ] nenhum `onDelete` que não esteja na modelagem
 - [ ] se a tarefa criou a tabela `staff`: migração `--custom` com a linha da IA
 - [ ] `apps/api/src/db/client.ts` com `Pool` e `schema`, sem `pg-proxy`
+- [ ] `bun run typecheck` passou antes do `generate`
 - [ ] migração gerada com `generate`, sem `push`, e nenhuma migração gerada escrita à mão
 - [ ] `bun run typecheck` e `bun run test` passam (da raiz do projeto)
