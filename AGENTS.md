@@ -25,7 +25,7 @@ apps/<app>/          um app por processo (hoje só apps/api)
   AGENTS.md          regras só do app: o que faz, módulos, comandos
   docs/<modulo>.md   um doc por módulo, não por arquivo
   src/<modulo>/      código, organizado por módulo
-  test/<modulo>/     testes, no mesmo caminho do src/
+  test/<modulo>/     testes: o de src/<modulo>/x.ts é test/<modulo>/x.spec.ts
 packages/shared/     tipos e contratos que a api e o web dividem
 docs/                docs do projeto inteiro: arquitetura, modelagem, decisões (adr/)
 ```
@@ -69,8 +69,9 @@ Decisão de arquitetura nova vira um ADR em `docs/adr/`, numerado (`0002-...md`)
 banco, endpoint da api, tela do web, etapa do pipeline do worker, leitura e envio de e-mail do
 mailer. Motivo e histórico em `docs/adr/0003-testes-antes-do-codigo.md`.
 
-1. Escreva o teste a partir dos docs (`docs/` e `apps/<app>/docs/`), em `apps/<app>/test/<modulo>/`,
-   no mesmo caminho do código.
+1. Escreva o teste a partir dos docs (`docs/` e `apps/<app>/docs/`), **espelhando o arquivo que ele
+   testa**: o teste de `apps/api/src/db/schema/customer.ts` é `apps/api/test/db/schema/customer.spec.ts`.
+   Arquivo em `test/` sem `.spec` é apoio aos testes (preparo, funções comuns).
 2. Rode e veja o teste **falhar pelo motivo certo** (o comportamento não existe ainda), não por erro
    de import ou de digitação.
 3. Só então escreva o código, até o teste passar.

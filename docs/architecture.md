@@ -46,7 +46,7 @@ apps/<app>/
 ├── AGENTS.md         regras só do app (ex.: apps/api/AGENTS.md)
 ├── docs/<modulo>.md   um doc por módulo, não por arquivo
 ├── src/<modulo>/      código do módulo
-└── test/<modulo>/     testes, no mesmo caminho do src/
+└── test/<modulo>/     testes: o de src/<modulo>/x.ts é test/<modulo>/x.spec.ts
 ```
 
 Os apps Python não entram nos workspaces do Bun: cada um tem o próprio `pyproject.toml`.

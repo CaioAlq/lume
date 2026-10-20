@@ -1,7 +1,7 @@
 // Regras da tabela staff (docs/data-model/tables-core.md e rules.md).
 import { describe, expect, test } from 'bun:test';
 import { sql } from 'drizzle-orm';
-import { CHECK_VIOLATION, expectRejected, rows, UNIQUE_VIOLATION, unique } from './helpers.ts';
+import { CHECK_VIOLATION, expectRejected, rows, UNIQUE_VIOLATION, unique } from '../helpers.ts';
 
 function insertStaff(kind: string, email: string | null, passwordHash: string | null) {
   return sql`
