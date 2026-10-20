@@ -66,7 +66,7 @@ programas em duas linguagens gravam nas mesmas tabelas. Detalhes em
 | Modelo | **Ornith 1.5 35B A3B** (MoE, ~3B ativos por token), quantizado em Q4_K_L (~21 GB) |
 | Como cabe | camadas de atenção na GPU, experts do MoE na RAM (`--n-cpu-moe`), contexto de 131k tokens |
 | Velocidade | ~37 tokens/s de geração |
-| Cliente | Mac mini M4, com o agente de código [pi](https://github.com/earendil-works/pi) apontando para o servidor na rede local |
+| Cliente | Agente de código [pi](https://github.com/earendil-works/pi) apontando para o servidor na rede local |
 
 ### Como o modelo foi escolhido
 
