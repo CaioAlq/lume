@@ -39,6 +39,12 @@ verdade. **Não mude uma decisão registrada lá por conta própria** (ex.: cria
 trocar as duas FKs de autor por um `author_id` genérico). Se achar que ela está errada, diga
 por quê e pergunte antes.
 
+**Caminhos:** todo caminho citado neste arquivo e nos docs é **a partir da raiz do repositório**
+(ex.: `apps/api/src/db/client.ts`). As ferramentas resolvem caminhos a partir da pasta onde o
+agente foi aberto: aberto dentro de um app, a raiz fica dois níveis acima (de `apps/api/`, o doc
+`docs/data-model/rules.md` é `../../docs/data-model/rules.md`). Na dúvida, use o caminho absoluto.
+A exceção são os imports no código, que seguem o caminho do próprio arquivo.
+
 **Antes de mexer numa área, leia o doc dela.** O cabeçalho `globs` de cada doc diz quais
 pastas ele cobre (ex.: `apps/api/docs/db.md` cobre `apps/api/src/db/**`).
 

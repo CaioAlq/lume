@@ -1,4 +1,4 @@
-// Ajudantes dos testes de regra do banco. As consultas passam pelo src/db/client.ts de verdade.
+// Ajudantes dos testes de regra do banco. As consultas passam pelo apps/api/src/db/client.ts de verdade.
 import { expect } from 'bun:test';
 import type { SQL } from 'drizzle-orm';
 import { db } from '../../src/db/client.ts';

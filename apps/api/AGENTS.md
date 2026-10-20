@@ -6,17 +6,15 @@ Bun + TypeScript, Drizzle sobre Postgres 18. As regras do projeto inteiro estão
 **Para uma tarefa só da api, abra o agente em `apps/api/`:** ele carrega este arquivo e o
 `AGENTS.md` da raiz juntos, e os comandos abaixo rodam sem `cd`.
 
-**Neste arquivo, todo caminho é a partir de `apps/api/`** (ex.: `docs/db.md` é `apps/api/docs/db.md`).
-
 ## Organização por módulo
 
 | Pasta | O que tem |
 |---|---|
-| `src/<modulo>/` | código do módulo |
-| `test/<modulo>/` | testes do módulo, no mesmo caminho do `src/` |
-| `docs/<modulo>.md` | o doc do módulo: como o código dele deve ser escrito |
+| `apps/api/src/<modulo>/` | código do módulo |
+| `apps/api/test/<modulo>/` | testes do módulo, no mesmo caminho do `src/` |
+| `apps/api/docs/<modulo>.md` | o doc do módulo: como o código dele deve ser escrito |
 
-Módulos hoje: **`db`** (conexão, schema e migrações; doc em `docs/db.md`).
+Módulos hoje: **`db`** (conexão, schema e migrações; doc em `apps/api/docs/db.md`).
 
 **Módulo novo:** crie as três partes juntas. O doc começa com o cabeçalho que liga o doc às
 pastas dele:
@@ -35,9 +33,9 @@ related: docs/data-model/rules.md
 |---|---|
 | `bun run typecheck` | typecheck só da api |
 | `bun run test` | testes só da api; carrega o `.env` da raiz e precisa do banco no ar |
-| `bunx drizzle-kit generate --name <descricao>` | gera migração a partir do schema (ver `docs/db.md`) |
+| `bunx drizzle-kit generate --name <descricao>` | gera migração a partir do schema (ver `apps/api/docs/db.md`) |
 
 ## Banco e testes
 
-Tudo sobre conexão, schema, migrações e os testes das regras do banco está em `docs/db.md`.
-Os testes em `test/db/` rodam num banco descartável e passam pelo `src/db/client.ts`.
+Tudo sobre conexão, schema, migrações e os testes das regras do banco está em `apps/api/docs/db.md`.
+Os testes em `apps/api/test/db/` rodam num banco descartável e passam pelo `apps/api/src/db/client.ts`.
