@@ -70,10 +70,9 @@ programas em duas linguagens gravam nas mesmas tabelas. Detalhes em
 
 ### Como o modelo foi escolhido
 
-Com uma suíte própria de avaliação: 14 tarefas com nota automática em 7 categorias (edição com
-SEARCH/REPLACE exato, depuração, uso de ferramentas, código, formato, contenção e contexto longo),
-rodada com os mesmos parâmetros do uso real. Mais de dez modelos locais foram comparados; o Ornith
-1.5 ficou em primeiro, com 99%.
+Combinando benchmarks públicos de código com testes próprios em tarefas parecidas com as do
+projeto (editar arquivos com precisão, usar ferramentas, depurar), rodados com os mesmos parâmetros
+do uso real. Entre os modelos que cabem nesse hardware, o Ornith 1.5 teve o melhor resultado.
 
 ### O fluxo
 
