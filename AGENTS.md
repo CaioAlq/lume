@@ -4,10 +4,21 @@ Helpdesk por e-mail: um endereço é o único canal de suporte de um app. Uma LL
 classifica os e-mails por urgência, encontra casos parecidos já resolvidos e redige
 respostas; um humano revisa.
 
-A modelagem do banco está em `docs/data-model.md` e é a fonte da verdade. **Não mude uma
+A modelagem do banco está em `docs/data-model/` (comece pelo `overview.md`) e é a fonte da verdade. **Não mude uma
 decisão registrada lá por conta própria** (ex.: criar coluna de ordem, trocar as duas FKs
 de autor por um `author_id` genérico). Se achar que ela está errada, diga por quê e
 pergunte antes.
+
+**Antes de mexer numa área, leia o doc dela em `docs/`.** O cabeçalho `globs` de cada doc
+diz quais pastas ele cobre (ex.: `docs/db.md` cobre `api/src/schema/**`).
+
+---
+
+## Antes de terminar
+
+De dentro de `api/`, rode **`bun run typecheck`** e **`bun run test`**. A tarefa só está
+pronta quando os dois passam. O `test` precisa do banco no ar (`docker compose up -d database`).
+Se um teste falhar, corrija o código, não o teste (ver *Testes* em `docs/db.md`).
 
 ---
 
