@@ -100,6 +100,13 @@ separados.
 
 ## Schema: padrões
 
+**Nomes** — propriedade do TypeScript em **camelCase**, coluna do banco em **snake_case**, sempre
+assim, em todas as tabelas: `createdAt: timestamp('created_at', ...)`, `staffId: uuid('staff_id')`.
+O arquivo tem o nome da tabela, com underscore: `staff_session.ts`, não `staff-session.ts`.
+
+**Coluna dentro de `` sql`...` ``** — sempre com `${}`: `` sql`${table.email} = lower(${table.email})` ``.
+Sem o `${}`, `lower(table.email)` vai para o SQL como texto literal, e a migração gerada quebra.
+
 **`id`** — sempre UUIDv7 gerado pelo banco, com o template `sql`:
 
 ```ts
@@ -156,6 +163,12 @@ Regras:
 - **Nunca edite uma migração que já foi aplicada.** O Drizzle grava o hash mas não compara:
   a mudança não é detectada e o banco fica diferente do arquivo.
 - Migração gerada não se edita à mão. SQL à mão vai numa migração `--custom`.
+- **Migração gerada saiu errada e ainda não foi aplicada em nenhum banco** (os bancos
+  descartáveis dos testes não contam): corrija o schema, **apague a pasta `apps/api/drizzle/`
+  inteira** e gere tudo de novo, inclusive as `--custom`. **Nunca escreva à mão** uma migração
+  gerada nem os arquivos de `meta/`: cada migração tem uma "foto" do schema em `meta/`, e se o SQL
+  e a foto não baterem, o próximo `generate` cria migrações fantasmas para corrigir uma diferença
+  que só existe na foto. Se não puder apagar a pasta, **pare e pergunte**.
 
 ### Inserir dados: a linha da IA
 
@@ -196,11 +209,13 @@ conexão abre. Precisa do banco no ar: `bun run db:up`, da raiz.
 ## Checklist antes de terminar uma tarefa no banco
 
 - [ ] `id` com `` sql`uuidv7()` ``, nunca entre aspas
+- [ ] propriedades em camelCase, colunas em snake_case; arquivo com o nome da tabela
+- [ ] dentro de `` sql`...` ``, toda coluna com `${}`
 - [ ] toda data com `withTimezone: true`
 - [ ] todos os `CHECK` e `UNIQUE` de `docs/data-model/rules.md` para as tabelas tocadas
 - [ ] índice em toda FK usada em busca ou `JOIN`
 - [ ] nenhum `onDelete` que não esteja na modelagem
 - [ ] se a tarefa criou a tabela `staff`: migração `--custom` com a linha da IA
 - [ ] `apps/api/src/db/client.ts` com `Pool` e `schema`, sem `pg-proxy`
-- [ ] migração gerada com `generate`, sem `push`
+- [ ] migração gerada com `generate`, sem `push`, e nenhuma migração gerada escrita à mão
 - [ ] `bun run typecheck` e `bun run test` passam (da raiz do projeto)
