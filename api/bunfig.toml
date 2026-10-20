@@ -1,0 +1,3 @@
+# Antes de qualquer teste, o test/setup.ts cria um banco descartável e aplica as migrações.
+[test]
+preload = ["./test/setup.ts"]
