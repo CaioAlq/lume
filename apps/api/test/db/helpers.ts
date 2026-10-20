@@ -1,12 +1,13 @@
 // Ajudantes dos testes de regra do banco. As consultas passam pelo apps/api/src/db/client.ts de verdade.
 import { expect } from 'bun:test';
-import type { SQL } from 'drizzle-orm';
+import { sql, type SQL } from 'drizzle-orm';
 import { db } from '../../src/db/client.ts';
 
 // Códigos de erro do Postgres para as regras que o banco garante.
 export const CHECK_VIOLATION = '23514';
 export const UNIQUE_VIOLATION = '23505';
 export const FOREIGN_KEY_VIOLATION = '23503';
+export const NOT_NULL_VIOLATION = '23502';
 
 export async function rows<T>(query: SQL): Promise<T[]> {
   const result = await db.execute(query);
@@ -38,4 +39,32 @@ export async function expectRejected(query: SQL, code: string): Promise<void> {
 // Valor único por teste, para os testes não colidirem entre si.
 export function unique(prefix: string): string {
   return `${prefix}-${crypto.randomUUID()}`;
+}
+
+// Linhas de apoio para os testes que precisam de um cliente, um atendente ou um ticket.
+// Todas as colunas vão explícitas, para o teste não depender de valores padrão do schema.
+
+export async function createCustomer(): Promise<string> {
+  const [row] = await rows<{ id: string }>(sql`
+    INSERT INTO customer (email, created_at) VALUES (${unique('c') + '@x.com'}, now()) RETURNING id`);
+  if (!row) throw new Error('não conseguiu criar o customer de teste');
+  return row.id;
+}
+
+export async function createHuman(): Promise<string> {
+  const [row] = await rows<{ id: string }>(sql`
+    INSERT INTO staff (kind, display_name, email, password_hash, active, created_at)
+    VALUES ('human', 'teste', ${unique('s') + '@x.com'}, 'hash', true, now())
+    RETURNING id`);
+  if (!row) throw new Error('não conseguiu criar o staff de teste');
+  return row.id;
+}
+
+export async function createTicket(customerId: string): Promise<string> {
+  const [row] = await rows<{ id: string }>(sql`
+    INSERT INTO ticket (customer_id, subject, status, archived, created_at)
+    VALUES (${customerId}::uuid, 'assunto', 'open', false, now())
+    RETURNING id`);
+  if (!row) throw new Error('não conseguiu criar o ticket de teste');
+  return row.id;
 }
