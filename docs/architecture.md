@@ -39,11 +39,11 @@ o que é compartilhado entre apps TypeScript fica em `packages/`.
 | `docs/` | docs do projeto inteiro: esta arquitetura, a modelagem e as decisões (`adr/`) | |
 
 Dentro de cada app TypeScript, o código é organizado **por módulo**. Regras do projeto inteiro
-ficam só no `AGENTS.md` da raiz; o que é de um app fica no doc geral dele:
+ficam no `AGENTS.md` da raiz; o que é de um app fica no `AGENTS.md` dele:
 
 ```
 apps/<app>/
-├── <app>.md          doc geral do app (ex.: apps/api/api.md)
+├── AGENTS.md         regras só do app (ex.: apps/api/AGENTS.md)
 ├── docs/<modulo>.md   um doc por módulo, não por arquivo
 ├── src/<modulo>/      código do módulo
 └── test/<modulo>/     testes, no mesmo caminho do src/

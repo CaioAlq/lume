@@ -4,13 +4,14 @@ Helpdesk por e-mail: um endereço é o único canal de suporte de um app. Uma LL
 classifica os e-mails por urgência, encontra casos parecidos já resolvidos e redige
 respostas; um humano revisa.
 
-Este é o único `AGENTS.md` do projeto e vale para tudo. O que é de um app fica no doc geral
-dele; **leia o do app antes de mexer nele**:
+Este arquivo vale para o projeto inteiro. **Cada app tem o próprio `AGENTS.md`** com o que é só
+dele. Para uma tarefa de um app só, **abra o agente na pasta do app**: ele carrega o `AGENTS.md`
+do app e este juntos. Para uma tarefa que cruza apps, abra na raiz e leia o do app antes de mexer nele.
 
-| App | Doc geral |
+| App | Regras do app |
 |---|---|
-| api | `apps/api/api.md` |
-| web | `apps/web/web.md` (nasce junto com o app; ainda não existe) |
+| api | `apps/api/AGENTS.md` |
+| web | `apps/web/AGENTS.md` (nasce junto com o app; ainda não existe) |
 
 ---
 
@@ -21,7 +22,7 @@ Monorepo com workspaces do Bun. Mapa completo e o porquê em `docs/architecture.
 
 ```
 apps/<app>/          um app por processo (hoje só apps/api)
-  <app>.md           doc geral do app: o que faz, módulos, comandos
+  AGENTS.md          regras só do app: o que faz, módulos, comandos
   docs/<modulo>.md   um doc por módulo, não por arquivo
   src/<modulo>/      código, organizado por módulo
   test/<modulo>/     testes, no mesmo caminho do src/

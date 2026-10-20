@@ -1,15 +1,12 @@
----
-description: Visão geral do app api: o que faz, organização por módulo, comandos e onde está cada doc
-globs: apps/api/**
-related: apps/api/docs/db.md, docs/architecture.md
----
-
-# api — visão geral do app
+# api — regras do app
 
 A api do Lume: login, telas do atendente, aprovar rascunho, responder, resolver, atribuir.
 Bun + TypeScript, Drizzle sobre Postgres 18. As regras do projeto inteiro estão no `AGENTS.md` da raiz.
 
-**Neste doc, todo caminho é a partir de `apps/api/`** (ex.: `docs/db.md` é `apps/api/docs/db.md`). Este doc é `apps/api/api.md`.
+**Para uma tarefa só da api, abra o agente em `apps/api/`:** ele carrega este arquivo e o
+`AGENTS.md` da raiz juntos, e os comandos abaixo rodam sem `cd`.
+
+**Neste arquivo, todo caminho é a partir de `apps/api/`** (ex.: `docs/db.md` é `apps/api/docs/db.md`).
 
 ## Organização por módulo
 
