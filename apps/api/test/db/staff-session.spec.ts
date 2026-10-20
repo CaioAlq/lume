@@ -1,4 +1,4 @@
-// Regras da tabela staff_session (docs/data-model/tables-core.md, rules.md e docs/db.md).
+// Regras da tabela staff_session (docs/data-model/tables-core.md, rules.md e apps/api/docs/db.md).
 import { describe, expect, test } from 'bun:test';
 import { sql } from 'drizzle-orm';
 import { expectRejected, FOREIGN_KEY_VIOLATION, rows, UNIQUE_VIOLATION, unique } from './helpers.ts';

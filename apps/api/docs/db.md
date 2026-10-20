@@ -1,6 +1,6 @@
 ---
 description: Como escrever a conexão, o schema e as migrações do banco na api (Drizzle + Postgres 18)
-globs: api/src/schema/**, api/src/db.ts, api/drizzle/**, api/drizzle.config.ts, api/test/**
+globs: apps/api/src/db/**, apps/api/drizzle/**, apps/api/drizzle.config.ts, apps/api/test/db/**
 related: docs/data-model/tables-core.md, docs/data-model/tables-support.md, docs/data-model/rules.md
 ---
 
@@ -15,15 +15,20 @@ vale mais.
 
 | Arquivo | O que tem |
 |---|---|
-| `api/src/schema/<tabela>.ts` | uma tabela por arquivo; o nome do arquivo é o nome da tabela |
-| `api/src/schema/index.ts` | reexporta todas as tabelas |
-| `api/src/db.ts` | a conexão (`db`) que o resto da api importa |
-| `api/drizzle.config.ts` | configuração do `drizzle-kit` |
-| `api/drizzle/` | migrações geradas; vão para o git |
-| `api/test/db/<tabela>.spec.ts` | testes das regras do banco, um arquivo por tabela |
-| `api/test/setup.ts` | prepara o banco descartável dos testes (ver *Testes*) |
+Caminhos a partir de `apps/api/`. O módulo é `db`: o código fica em `src/db/` e os testes em
+`test/db/`, no mesmo caminho.
 
-## Conexão: `api/src/db.ts`
+| Arquivo | O que tem |
+|---|---|
+| `src/db/client.ts` | a conexão (`db`) que o resto da api importa |
+| `src/db/schema/<tabela>.ts` | uma tabela por arquivo; o nome do arquivo é o nome da tabela |
+| `src/db/schema/index.ts` | reexporta todas as tabelas |
+| `drizzle.config.ts` | configuração do `drizzle-kit` |
+| `drizzle/` | migrações geradas; vão para o git |
+| `test/db/<tabela>.spec.ts` | testes das regras do banco, um arquivo por tabela |
+| `test/setup.ts` | prepara o banco descartável dos testes (ver *Testes*) |
+
+## Conexão: `src/db/client.ts`
 
 Use o driver `node-postgres` com um **`Pool`** e passe o schema:
 
@@ -62,11 +67,11 @@ Por que assim:
 
 ## Variáveis de ambiente
 
-O `.env` fica na **raiz** do projeto, mas a api roda de dentro de `api/`, e o Bun só carrega
+O `.env` fica na **raiz** do projeto, mas a api roda de dentro de `apps/api/`, e o Bun só carrega
 o `.env` da pasta atual. Por isso, todo script do `package.json` que precisa do banco roda
-com `bun --env-file=../.env ...`. Não copie o `.env` para dentro de `api/`.
+com `bun --env-file=../../.env ...`. Não copie o `.env` para dentro de `apps/api/`.
 
-## `api/drizzle.config.ts`
+## `drizzle.config.ts`
 
 ```ts
 import { defineConfig } from 'drizzle-kit';
@@ -76,7 +81,7 @@ const { DB_PASSWORD, DB_NAME, DB_PORT } = process.env;
 
 export default defineConfig({
   dialect: 'postgresql',
-  schema: './src/schema/index.ts',
+  schema: './src/db/schema/index.ts',
   out: './drizzle',
   dbCredentials: {
     host: '127.0.0.1',
@@ -137,7 +142,7 @@ e o `worker` são Python e gravam no mesmo banco.
 
 ## Migrações
 
-| Comando (de dentro de `api/`) | Para quê |
+| Comando (de dentro de `apps/api/`) | Para quê |
 |---|---|
 | `bunx drizzle-kit generate --name <descricao>` | gera a migração a partir do schema; não precisa de banco |
 | `bunx drizzle-kit generate --custom --name <descricao>` | cria uma migração **vazia**, já registrada, para SQL escrito à mão |
@@ -174,11 +179,11 @@ O **nome exibido** da IA é decisão do projeto e não está na modelagem: se ni
 
 ## Testes
 
-As regras do banco têm testes em `api/test/db/`, um arquivo por tabela. Eles são a prova de
+As regras do banco têm testes em `test/db/`, um arquivo por tabela. Eles são a prova de
 que a tarefa terminou: **a tarefa só está pronta quando `bun run test` passa**.
 
 Como funcionam: antes de tudo, o `test/setup.ts` cria um banco descartável no Postgres do
-`.env`, aplica as migrações de `api/drizzle/` e conecta **pelo próprio `src/db.ts`**. No fim,
+`.env`, aplica as migrações de `drizzle/` e conecta **pelo próprio `src/db/client.ts`**. No fim,
 apaga o banco. Então um `bun run test` verde também prova que as migrações aplicam e que a
 conexão abre. Precisa do banco no ar: `docker compose up -d database`.
 
@@ -196,6 +201,6 @@ conexão abre. Precisa do banco no ar: `docker compose up -d database`.
 - [ ] índice em toda FK usada em busca ou `JOIN`
 - [ ] nenhum `onDelete` que não esteja na modelagem
 - [ ] se a tarefa criou a tabela `staff`: migração `--custom` com a linha da IA
-- [ ] `db.ts` com `Pool` e `schema`, sem `pg-proxy`
+- [ ] `src/db/client.ts` com `Pool` e `schema`, sem `pg-proxy`
 - [ ] migração gerada com `generate`, sem `push`
-- [ ] `bun run typecheck` e `bun run test` passam (de dentro de `api/`)
+- [ ] `bun run typecheck` e `bun run test` passam (da raiz do projeto)

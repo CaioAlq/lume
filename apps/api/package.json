@@ -1,6 +1,6 @@
 {
-  "name": "api",
-  "module": "index.ts",
+  "name": "@lume/api",
+  "module": "src/index.ts",
   "type": "module",
   "private": true,
   "devDependencies": {
@@ -15,6 +15,6 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "bun --env-file=../.env test"
+    "test": "bun --env-file=../../.env test"
   }
 }

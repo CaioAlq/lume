@@ -1,6 +1,6 @@
 ---
 description: Threading de e-mail e os fluxos de mailer, worker e api
-globs: mailer/**, worker/**, api/src/routes/**
+globs: apps/mailer/**, apps/worker/**
 related: docs/data-model/tables-core.md, docs/data-model/tables-support.md, docs/data-model/rules.md
 ---
 

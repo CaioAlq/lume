@@ -1,7 +1,7 @@
 ---
 description: Visão geral da modelagem do Lume: componentes, mapa das tabelas, ordem da conversa e pendências
-globs: api/src/schema/**, api/drizzle/**, mailer/**, worker/**
-related: docs/data-model/tables-core.md, docs/data-model/tables-support.md, docs/data-model/rules.md, docs/data-model/flows.md
+globs: apps/api/src/db/**, apps/api/drizzle/**, apps/mailer/**, apps/worker/**
+related: docs/architecture.md, docs/data-model/tables-core.md, docs/data-model/tables-support.md, docs/data-model/rules.md, docs/data-model/flows.md
 ---
 
 # Lume — modelagem do banco
@@ -30,22 +30,8 @@ colide com *agente de IA*. `operator` foi descartado por ser palavra-chave do Po
 
 ## Componentes
 
-```
-web (Angular) ──HTTP──▶ api (Bun/TS) ──┐
-                                        ├──▶ Postgres + pgvector
-IMAP / provedor ◀──▶ mailer (Python) ──┤
-                                        │
-llama.cpp ◀──HTTP── worker (Python) ───┘
-```
-
-| Processo | Faz |
-|---|---|
-| `api` | login, telas do atendente, aprovar rascunho, responder, resolver, atribuir |
-| `mailer` | busca e-mails novos (IMAP), grava tickets e mensagens; envia as mensagens pendentes |
-| `worker` | pipeline de IA: classificar, gerar embedding, buscar casos parecidos, redigir rascunho |
-
-Os processos **não conversam entre si**: cada um só lê e grava no banco. A fila de
-trabalho é a tabela `job` (ver `tables-support.md`), com `FOR UPDATE SKIP LOCKED` — sem Redis.
+Os processos (`api`, `mailer`, `worker`, `web`) e como eles se falam estão em
+`docs/architecture.md`.
 
 ---
 

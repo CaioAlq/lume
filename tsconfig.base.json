@@ -1,3 +1,5 @@
+// Opções comuns a todos os pacotes TypeScript do workspace. Tipos de runtime (ex.: Bun)
+// ficam no tsconfig de cada app, porque o packages/shared também vai ser usado pelo web.
 {
   "compilerOptions": {
     // Environment setup & latest features
@@ -7,7 +9,6 @@
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
-    "types": ["bun"],
 
     // Bundler mode
     "moduleResolution": "bundler",
