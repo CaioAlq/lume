@@ -51,7 +51,7 @@ Decisão de arquitetura nova vira um ADR em `docs/adr/`, numerado (`0002-...md`)
 | Comando | Para quê |
 |---|---|
 | `bun install` | instala as dependências de todos os apps e pacotes |
-| `docker compose up -d database` | sobe o Postgres (o `.env` sai do `.env.example`) |
+| `bun run db:up` | liga o OrbStack (no Mac) e sobe o Postgres, esperando ele ficar pronto; precisa do `.env` (sai do `.env.example`) |
 | `bun run typecheck` | typecheck de todos os workspaces |
 | `bun run test` | testes de todos os workspaces (precisa do banco no ar) |
 

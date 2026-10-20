@@ -28,7 +28,7 @@ const admin = new pg.Client({
 try {
   await admin.connect();
 } catch (error) {
-  throw new Error(`Banco fora do ar na porta ${DB_PORT ?? 5432}. Suba com: docker compose up -d database`, {
+  throw new Error(`Banco fora do ar na porta ${DB_PORT ?? 5432}. Suba com: bun run db:up (da raiz do projeto)`, {
     cause: error,
   });
 }

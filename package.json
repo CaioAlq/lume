@@ -6,6 +6,7 @@
     "packages/*"
   ],
   "scripts": {
+    "db:up": "bash scripts/db-up.sh",
     "typecheck": "bun run --filter '*' typecheck",
     "test": "bun run --filter '*' test"
   }
