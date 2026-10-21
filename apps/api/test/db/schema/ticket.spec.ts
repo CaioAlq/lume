@@ -8,6 +8,7 @@ import {
   createTicket,
   expectRejected,
   FOREIGN_KEY_VIOLATION,
+  NOT_NULL_VIOLATION,
   rows,
 } from '../helpers.ts';
 
@@ -90,6 +91,16 @@ describe('ticket', () => {
     await expectRejected(
       sql`UPDATE ticket SET duplicate_of_ticket_id = ${crypto.randomUUID()}::uuid WHERE id = ${duplicate}::uuid`,
       FOREIGN_KEY_VIOLATION,
+    );
+  });
+
+  test('assunto é obrigatório: nulo é recusado', async () => {
+    const customerId = await createCustomer();
+    await expectRejected(
+      sql`
+        INSERT INTO ticket (customer_id, subject, status, archived, created_at)
+        VALUES (${customerId}::uuid, NULL, 'open', false, now())`,
+      NOT_NULL_VIOLATION,
     );
   });
 
