@@ -76,7 +76,7 @@ sessões. Logout apaga a linha.
 | `id` | UUIDv7. **É o id da conversa** que o e-mail não tem (ver *Threading*, em `flows.md`) |
 | `customer_id` | FK → `customer`. **Quem abriu o ticket** |
 | `staff_id` | FK → `staff`. **O responsável atual**, não o autor de cada mensagem. Nulo até alguém assumir |
-| `subject` | assunto do primeiro e-mail. Pode ser texto vazio |
+| `subject` | assunto do primeiro e-mail. **Obrigatório** (nunca nulo), mas pode ser texto vazio |
 | `status` | ver *Estados do ticket* |
 | `urgency` | `low`, `normal`, `high` ou `urgent`. Nulo até ser classificado |
 | `category` | categoria dada pela IA ou pelo atendente. Nulo até ser classificado |
