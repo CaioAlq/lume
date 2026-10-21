@@ -140,6 +140,16 @@ createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(
 exclusão) é o que a modelagem quer: `staff` e `customer` nunca são apagados, só desativados.
 `ON DELETE CASCADE` só entra se estiver escrito em `docs/data-model/`.
 
+**FK para a própria tabela** (ex.: `ticket.duplicate_of_ticket_id` → `ticket`) — tipe o retorno da
+função com `AnyPgColumn`:
+
+```ts
+duplicateOfTicketId: uuid('duplicate_of_ticket_id').references((): AnyPgColumn => ticket.id),
+```
+
+Sem isso, o TypeScript estrito acusa referência circular (`TS7022`). **Nunca resolva com `any`** (ex.:
+`PgTableWithColumns<any>`): apaga o tipo de todas as colunas, e `status = 123` passa no typecheck.
+
 **Índice em FK** — o Postgres não cria índice para FK sozinho. Toda coluna `*_id` usada em
 busca ou `JOIN` ganha o seu:
 
@@ -170,12 +180,21 @@ Regras:
 - **Nunca edite uma migração que já foi aplicada.** O Drizzle grava o hash mas não compara:
   a mudança não é detectada e o banco fica diferente do arquivo.
 - Migração gerada não se edita à mão. SQL à mão vai numa migração `--custom`.
-- **Migração gerada saiu errada e ainda não foi aplicada em nenhum banco** (os bancos
-  descartáveis dos testes não contam): corrija o schema, **apague a pasta `apps/api/drizzle/`
-  inteira** e gere tudo de novo, inclusive as `--custom`. **Nunca escreva à mão** uma migração
-  gerada nem os arquivos de `meta/`: cada migração tem uma "foto" do schema em `meta/`, e se o SQL
-  e a foto não baterem, o próximo `generate` cria migrações fantasmas para corrigir uma diferença
-  que só existe na foto. Se não puder apagar a pasta, **pare e pergunte**.
+- **Migração desta tarefa saiu errada e ainda não foi aplicada em nenhum banco** (os bancos
+  descartáveis dos testes não contam): corrija o schema, volte `apps/api/drizzle/` ao estado da
+  `main` e gere de novo só o que esta tarefa criou. Da raiz do projeto:
+
+  ```bash
+  git fetch origin
+  git restore --source=origin/main --staged --worktree -- apps/api/drizzle/
+  git clean -f -- apps/api/drizzle/
+  ```
+
+  O `restore` devolve o que já estava na `main` (inclusive o `_journal.json`) e o `clean` apaga o
+  que esta tarefa criou; depois, `generate` de novo e refaça as `--custom` desta tarefa. **Nunca
+  apague migração que já está na `main`.** Se os comandos forem bloqueados, **pare e pergunte**.
+- **Nunca escreva à mão** migração gerada nem o `meta/`: cada migração tem uma "foto" do schema em
+  `meta/`, e se SQL e foto não baterem, o `generate` cria migrações fantasmas.
 
 ### Inserir dados: a linha da IA
 
@@ -223,6 +242,7 @@ conexão abre. Precisa do banco no ar: `bun run db:up`, da raiz.
 - [ ] todos os `CHECK` e `UNIQUE` de `docs/data-model/rules.md` para as tabelas tocadas
 - [ ] índice em toda FK usada em busca ou `JOIN`
 - [ ] nenhum `onDelete` que não esteja na modelagem
+- [ ] FK para a própria tabela com `AnyPgColumn`, nunca com `any`
 - [ ] se a tarefa criou a tabela `staff`: migração `--custom` com a linha da IA
 - [ ] `apps/api/src/db/client.ts` com `Pool` e `schema`, sem `pg-proxy`
 - [ ] `bun run typecheck` passou antes do `generate`
