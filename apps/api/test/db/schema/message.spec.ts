@@ -108,6 +108,7 @@ describe('message', () => {
     const { customerId, ticketId } = await setup();
     await expectRejected(insertMessage({ ticketId, customerId, deliveryStatus: 'pending' }), CHECK_VIOLATION);
     await expectRejected(insertMessage({ ticketId, customerId, recipients: ['a@x.com'] }), CHECK_VIOLATION);
+    await expectRejected(insertMessage({ ticketId, customerId, sentAt: true }), CHECK_VIOLATION);
   });
 
   test('mensagem da equipe sem delivery_status ou sem recipients é recusada', async () => {
