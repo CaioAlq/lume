@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { index, pgTable, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
+import { index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { staff } from './staff.ts';
 
 // Sessão de login dos atendentes humanos. O banco guarda só o hash do token (docs/data-model/tables-core.md).

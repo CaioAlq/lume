@@ -61,6 +61,10 @@ Decisão de arquitetura nova vira um ADR em `docs/adr/`, numerado (`0002-...md`)
 | `bun run typecheck` | typecheck de todos os workspaces |
 | `bun run test` | testes de todos os workspaces (precisa do banco no ar) |
 
+**Não leia o `.env`** (nem com `cat`, `read` ou `--env-file` escrito à mão): ele guarda a senha do
+banco, e a leitura é bloqueada. Os scripts acima já carregam o `.env`. Os nomes das variáveis estão
+no `.env.example`, e onde cada uma é usada (porta, banco) está no `compose.yaml`.
+
 ---
 
 ## Testes primeiro

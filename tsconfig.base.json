@@ -23,9 +23,10 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
 
+    // Variável, import ou parâmetro sem uso é erro no typecheck.
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     // Some stricter flags (disabled by default)
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   }
 }

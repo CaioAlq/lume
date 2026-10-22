@@ -13,8 +13,6 @@ vale mais.
 
 ## Onde fica cada coisa
 
-| Arquivo | O que tem |
-|---|---|
 O módulo é `db`: o código fica em `apps/api/src/db/` e os testes em `apps/api/test/db/`, no mesmo
 caminho.
 
@@ -230,7 +228,9 @@ conexão abre. Precisa do banco no ar: `bun run db:up`, da raiz.
 - **Teste falhou: corrija o código, não o teste.** Os testes escrevem regras da modelagem;
   mudar um teste é mudar uma decisão do projeto, e isso se pergunta antes.
 - **Tabela nova: crie o `apps/api/test/db/schema/<tabela>.spec.ts` dela** com as regras de
-  `docs/data-model/rules.md`, no mesmo formato dos que já existem.
+  `docs/data-model/rules.md` e da seção dela em `tables-*.md`, no mesmo formato dos que já existem.
+- **Teste de regra tem que poder falhar** com o schema errado. `UNIQUE` ou PK de duas colunas
+  testa o par repetido e os vizinhos aceitos: mesmo `a` com outro `b`, outro `a` com o mesmo `b`.
 - O teste insere linhas direto com SQL, então não depende de nomes de propriedades do schema.
 
 ## Checklist antes de terminar uma tarefa no banco
