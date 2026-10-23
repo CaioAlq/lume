@@ -3,3 +3,5 @@ export * from './staff.ts';
 export * from './staff_session.ts';
 export * from './ticket.ts';
 export * from './message.ts';
+export * from './ticket_participant.ts';
+export * from './ticket_event.ts';
