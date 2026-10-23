@@ -64,11 +64,13 @@ alterar ou apagar linhas dessa tabela.
 | `ticket_id` | FK → `ticket` |
 | `staff_id` | FK → `staff`. Quem fez. Nulo quando foi o próprio sistema (ex.: reabertura por e-mail) |
 | `kind` | o que aconteceu (lista abaixo) |
-| `detail` | `jsonb` com os dados da mudança, ex.: `{"from": "open", "to": "resolved"}` |
+| `detail` | `jsonb` com os dados da mudança, ex.: `{"from": "open", "to": "resolved"}`. Nulo quando a mudança não tem dados (ex.: `archived`) |
 | `created_at` | |
 
 `kind`: `status_changed`, `assigned`, `urgency_changed`, `category_changed`,
 `participant_added`, `participant_removed`, `marked_duplicate`, `archived`, `unarchived`.
+
+- **Índice em `ticket_id`** (o histórico de um ticket) **e em `staff_id`** (o que um atendente fez).
 
 ### `draft`
 
