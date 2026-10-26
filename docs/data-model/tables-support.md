@@ -94,6 +94,12 @@ Regras:
 - **No máximo um rascunho pendente por ticket:** índice único parcial,
   `UNIQUE (ticket_id) WHERE status = 'pending'`.
 - `status = 'sent'` se, e somente se, `message_id` e `edited` estão preenchidos.
+- `decided_at` preenchido se, e somente se, `status <> 'pending'`.
+- `decided_by_staff_id`: obrigatório em `sent`, nulo em `pending`. Em `discarded` é
+  opcional: nulo quando foi o próprio sistema (o cliente respondeu de novo).
+- **Uma mensagem sai de um rascunho só:** `UNIQUE (message_id)`.
+- **Índice em `ticket_id`:** o índice parcial só cobre os pendentes, e o histórico de
+  rascunhos do ticket precisa de todos.
 - Quando chega uma resposta nova do cliente, o rascunho pendente vira `discarded` (ele
   respondia a uma conversa que mudou) e a IA escreve outro.
 
@@ -120,7 +126,14 @@ Auditoria da IA: cada chamada a um modelo vira uma linha, com sucesso ou falha.
 | `error_message` | o erro, quando `failed` |
 | `created_at` | |
 
-Regra: `CHECK ((status = 'failed') = (error_message IS NOT NULL))`.
+Regras:
+- `CHECK ((status = 'failed') = (error_message IS NOT NULL))`.
+- `prompt_version` nulo se, e somente se, `task = 'embed'`: `classify` e `draft` sempre
+  registram a versão do prompt.
+- Falha não tem resultado: `failed` ⇒ `output` nulo. Sucesso pode não ter `output` (o
+  `embed` guarda o vetor na `ticket_embedding`).
+- `latency_ms`, `input_tokens` e `output_tokens` nunca são negativos.
+- **Índices em `ticket_id` e `message_id`** (auditoria por ticket e por mensagem).
 
 **A IA nunca sobrescreve uma decisão humana.** Se um atendente mudou a urgência ou a
 categoria (existe `ticket_event` de `urgency_changed` ou `category_changed` com `staff_id`

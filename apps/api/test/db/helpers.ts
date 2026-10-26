@@ -68,3 +68,39 @@ export async function createTicket(customerId: string): Promise<string> {
   if (!row) throw new Error('não conseguiu criar o ticket de teste');
   return row.id;
 }
+
+// Mensagem recebida do cliente: o que dispara a IA.
+export async function createInboundMessage(ticketId: string, customerId: string): Promise<string> {
+  const [row] = await rows<{ id: string }>(sql`
+    INSERT INTO message (ticket_id, customer_id, staff_id, body, message_id_header, recorded_at,
+                         delivery_status, sent_at, recipients)
+    VALUES (${ticketId}::uuid, ${customerId}::uuid, NULL, 'corpo', ${`<${unique('m')}@x.com>`}, now(),
+            NULL, NULL, NULL)
+    RETURNING id`);
+  if (!row) throw new Error('não conseguiu criar a mensagem recebida de teste');
+  return row.id;
+}
+
+// Mensagem enviada pela equipe, ainda na fila de envio: o que sai de um rascunho.
+export async function createOutboundMessage(ticketId: string, staffId: string): Promise<string> {
+  const [row] = await rows<{ id: string }>(sql`
+    INSERT INTO message (ticket_id, customer_id, staff_id, body, message_id_header, recorded_at,
+                         delivery_status, sent_at, recipients)
+    VALUES (${ticketId}::uuid, NULL, ${staffId}::uuid, 'corpo', ${`<${unique('m')}@x.com>`}, now(),
+            'pending', NULL, ARRAY['cliente@x.com']::text[])
+    RETURNING id`);
+  if (!row) throw new Error('não conseguiu criar a mensagem enviada de teste');
+  return row.id;
+}
+
+// Execução da IA que redigiu um rascunho, com sucesso.
+export async function createAiRun(ticketId: string, messageId: string): Promise<string> {
+  const [row] = await rows<{ id: string }>(sql`
+    INSERT INTO ai_run (ticket_id, message_id, task, model, prompt_version, status, latency_ms,
+                        input_tokens, output_tokens, output, error_message, created_at)
+    VALUES (${ticketId}::uuid, ${messageId}::uuid, 'draft', 'modelo.gguf', 'v1', 'succeeded', 1000,
+            NULL, NULL, NULL, NULL, now())
+    RETURNING id`);
+  if (!row) throw new Error('não conseguiu criar a ai_run de teste');
+  return row.id;
+}
