@@ -25,7 +25,11 @@ o `mailer` e o `worker` em Python. Regra no código teria que existir em duas li
 | Recebida não tem dados de envio | `message`: `CHECK` de autor com `delivery_status` e `recipients` |
 | Uma pessoa entra uma vez só em cada ticket | `ticket_participant`: PK `(ticket_id, customer_id)` |
 | No máximo um rascunho pendente por ticket | `draft`: índice único parcial |
-| Falha sempre tem mensagem de erro | `ai_run`: `CHECK` de `status` com `error_message` |
+| Rascunho decidido tem data; enviado tem quem enviou | `draft`: `CHECK` de `status` com `decided_at` e `decided_by_staff_id` |
+| Uma mensagem sai de um rascunho só | `draft`: `UNIQUE (message_id)` |
+| Falha sempre tem mensagem de erro e nunca resultado | `ai_run`: `CHECK` de `status` com `error_message` e `output` |
+| Só o embedding não tem versão de prompt | `ai_run`: `CHECK` de `task` com `prompt_version` |
+| Tempo e tokens nunca negativos | `ai_run`: `CHECK (coluna >= 0)` |
 | Um trabalho de cada tipo por mensagem | `job`: `UNIQUE (kind, message_id)` |
 | Valores fechados (`status`, `kind`, `urgency`...) | `CHECK (coluna IN (...))` em cada tabela |
 
