@@ -58,16 +58,36 @@ que liga os dois. Uma resposta no ticket errado some dentro de outra conversa.
 
 Numa **única transação**:
 
-1. grava a `message` com `ON CONFLICT (message_id_header) DO NOTHING`. Se não gravou
-   nada, esse e-mail **já foi processado**: encerra a transação sem erro;
+1. se já existe `message` com esse `message_id_header`, o e-mail **já foi processado**:
+   encerra sem gravar nada e sem erro;
 2. encontra ou cria o `customer` do `From`;
 3. encontra o ticket pelo threading, ou cria um `ticket` novo (`open`);
-4. acrescenta participantes, pelas regras da `ticket_participant`;
-5. aplica a transição de `status` e grava a `ticket_event`;
-6. descarta o rascunho pendente do ticket, se houver;
-7. cria o `job` `process_inbound`.
+4. grava a `message` com `ON CONFLICT (message_id_header) DO NOTHING`. Se não gravou
+   nada, outro processo gravou o mesmo e-mail ao mesmo tempo: **desfaz a transação inteira**
+   (`raise psycopg.Rollback()`) e encerra sem erro. A `message` não vem primeiro porque
+   precisa do `ticket_id`;
+5. acrescenta participantes, pelas regras da `ticket_participant`;
+6. aplica a transição de `status` e grava a `ticket_event`;
+7. descarta o rascunho pendente do ticket, se houver;
+8. cria o `job` `process_inbound`.
 
 Se qualquer passo falhar, nada fica gravado, e o e-mail é lido de novo na próxima vez.
+
+**Detalhes da leitura** (cada um tem teste em `apps/mailer/test/test_ingest.py`):
+- **Endereços do Lume:** a lista vem da configuração; `suporte+qualquer@dominio` conta como
+  `suporte@dominio`, e a comparação ignora maiúsculas. E-mail com `From` do Lume é ignorado.
+- **Sem `Message-ID`:** o id vira `<sha256-dos-bytes@missing.lume>`. Ler o mesmo e-mail de
+  novo dá o mesmo id, e o `ON CONFLICT` do passo 1 continua valendo.
+- **`References` com mais de um id conhecido:** vale o **último** que bate (a lista vai do
+  mais antigo ao mais novo). O `In-Reply-To` vem antes de todos.
+- **Assunto:** decodificado (`=?utf-8?...?=`); sem assunto, texto vazio.
+- **Corpo:** a parte `text/plain`; se só houver HTML, o texto dele sem as tags. O texto
+  citado ainda não é cortado (pendência em `overview.md`).
+- **Hora:** `recorded_at` é a hora do servidor; o `Date` do e-mail é ignorado.
+- **Eventos:** cada participante novo gera `participant_added` com
+  `{"customer_id": "<uuid>"}`; mudança de status gera `status_changed` com
+  `{"from": ..., "to": ...}`. Os dois com `staff_id` nulo (foi o sistema). Ticket novo
+  nasce `open` sem evento.
 
 ### IA processa (`worker`, job `process_inbound`)
 
