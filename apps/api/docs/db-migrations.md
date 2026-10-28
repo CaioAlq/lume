@@ -29,18 +29,20 @@ Regras:
   a mudança não é detectada e o banco fica diferente do arquivo.
 - Migração gerada não se edita à mão. SQL à mão vai numa migração `--custom`.
 - **Migração desta tarefa saiu errada e ainda não foi aplicada em nenhum banco** (os bancos
-  descartáveis dos testes não contam): corrija o schema, volte `apps/api/drizzle/` ao estado da
-  `main` e gere de novo só o que esta tarefa criou. Da raiz do projeto:
+  descartáveis dos testes não contam): corrija o schema, volte `apps/api/drizzle/` ao último
+  commit e gere de novo só o que esta tarefa criou. Da raiz do projeto:
 
   ```bash
-  git fetch origin
-  git restore --source=origin/main --staged --worktree -- apps/api/drizzle/
+  git restore --source=HEAD --staged --worktree -- apps/api/drizzle/
   git clean -f -- apps/api/drizzle/
   ```
 
-  O `restore` devolve o que já estava na `main` (inclusive o `_journal.json`) e o `clean` apaga o
-  que esta tarefa criou; depois, `generate` de novo e refaça as `--custom` desta tarefa. **Nunca
-  apague migração que já está na `main`.** Se os comandos forem bloqueados, **pare e pergunte**.
+  A tarefa não faz commit, então o último commit é a `main` de onde ela saiu: o `restore` devolve
+  o que já estava lá (inclusive o `_journal.json`) e o `clean` apaga tudo o que a tarefa criou,
+  **inclusive as `--custom` dela**. Depois, refaça as `--custom` desta tarefa e rode o `generate`
+  de novo. Não apague só o `.sql` nem edite o `meta/` para consertar: o `generate` lê o último
+  snapshot, e um `.sql` apagado sem o snapshot vira uma migração fantasma. **Nunca apague
+  migração que já está na `main`.** Se os comandos forem bloqueados, **pare e pergunte**.
 - **Nunca escreva à mão** migração gerada nem o `meta/`: cada migração tem uma "foto" do schema em
   `meta/`, e se SQL e foto não baterem, o `generate` cria migrações fantasmas.
 
