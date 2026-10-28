@@ -1,0 +1,1205 @@
+{
+  "id": "64d0ee0c-3d66-4402-8c35-b771955300d1",
+  "prevId": "664e098e-4183-43ef-8eb6-e1dd5ffa70f2",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.customer": {
+      "name": "customer",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "uuidv7()"
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "customer_email_unique": {
+          "name": "customer_email_unique",
+          "columns": [
+            "email"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "customer_email_lower": {
+          "name": "customer_email_lower",
+          "value": "\"customer\".\"email\" = lower(\"customer\".\"email\")"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.staff": {
+      "name": "staff",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "uuidv7()"
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "staff_email_unique": {
+          "name": "staff_email_unique",
+          "columns": [
+            "email"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "staff_kind_check": {
+          "name": "staff_kind_check",
+          "value": "\"staff\".\"kind\" IN ('human', 'ai')"
+        },
+        "staff_login_check": {
+          "name": "staff_login_check",
+          "value": "(\"staff\".\"kind\" = 'human' AND \"staff\".\"email\" IS NOT NULL AND \"staff\".\"password_hash\" IS NOT NULL) OR\n          (\"staff\".\"kind\" = 'ai'    AND \"staff\".\"email\" IS NULL     AND \"staff\".\"password_hash\" IS NULL)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.staff_session": {
+      "name": "staff_session",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "uuidv7()"
+        },
+        "staff_id": {
+          "name": "staff_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_seen_at": {
+          "name": "last_seen_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "staff_session_staff_id_idx": {
+          "name": "staff_session_staff_id_idx",
+          "columns": [
+            {
+              "expression": "staff_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "staff_session_staff_id_staff_id_fk": {
+          "name": "staff_session_staff_id_staff_id_fk",
+          "tableFrom": "staff_session",
+          "columnsFrom": [
+            "staff_id"
+          ],
+          "tableTo": "staff",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "staff_session_token_hash_unique": {
+          "name": "staff_session_token_hash_unique",
+          "columns": [
+            "token_hash"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ticket": {
+      "name": "ticket",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "uuidv7()"
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "staff_id": {
+          "name": "staff_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "subject": {
+          "name": "subject",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "urgency": {
+          "name": "urgency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "archived": {
+          "name": "archived",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "duplicate_of_ticket_id": {
+          "name": "duplicate_of_ticket_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "resolved_at": {
+          "name": "resolved_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "ticket_customer_id_idx": {
+          "name": "ticket_customer_id_idx",
+          "columns": [
+            {
+              "expression": "customer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "ticket_staff_id_idx": {
+          "name": "ticket_staff_id_idx",
+          "columns": [
+            {
+              "expression": "staff_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "ticket_duplicate_of_ticket_id_idx": {
+          "name": "ticket_duplicate_of_ticket_id_idx",
+          "columns": [
+            {
+              "expression": "duplicate_of_ticket_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ticket_customer_id_customer_id_fk": {
+          "name": "ticket_customer_id_customer_id_fk",
+          "tableFrom": "ticket",
+          "columnsFrom": [
+            "customer_id"
+          ],
+          "tableTo": "customer",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ticket_staff_id_staff_id_fk": {
+          "name": "ticket_staff_id_staff_id_fk",
+          "tableFrom": "ticket",
+          "columnsFrom": [
+            "staff_id"
+          ],
+          "tableTo": "staff",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ticket_duplicate_of_ticket_id_ticket_id_fk": {
+          "name": "ticket_duplicate_of_ticket_id_ticket_id_fk",
+          "tableFrom": "ticket",
+          "columnsFrom": [
+            "duplicate_of_ticket_id"
+          ],
+          "tableTo": "ticket",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "ticket_status_check": {
+          "name": "ticket_status_check",
+          "value": "\"ticket\".\"status\" IN ('open', 'awaiting_staff', 'awaiting_customer', 'resolved')"
+        },
+        "ticket_urgency_check": {
+          "name": "ticket_urgency_check",
+          "value": "\"ticket\".\"urgency\" IN ('low', 'normal', 'high', 'urgent')"
+        },
+        "ticket_resolved_check": {
+          "name": "ticket_resolved_check",
+          "value": "(\"ticket\".\"status\" = 'resolved') = (\"ticket\".\"resolved_at\" IS NOT NULL)"
+        },
+        "ticket_duplicate_check": {
+          "name": "ticket_duplicate_check",
+          "value": "\"ticket\".\"duplicate_of_ticket_id\" <> \"ticket\".\"id\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.message": {
+      "name": "message",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "uuidv7()"
+        },
+        "ticket_id": {
+          "name": "ticket_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "staff_id": {
+          "name": "staff_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "message_id_header": {
+          "name": "message_id_header",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_at": {
+          "name": "recorded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "delivery_status": {
+          "name": "delivery_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sent_at": {
+          "name": "sent_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recipients": {
+          "name": "recipients",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "message_ticket_id_idx": {
+          "name": "message_ticket_id_idx",
+          "columns": [
+            {
+              "expression": "ticket_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "message_customer_id_idx": {
+          "name": "message_customer_id_idx",
+          "columns": [
+            {
+              "expression": "customer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "message_staff_id_idx": {
+          "name": "message_staff_id_idx",
+          "columns": [
+            {
+              "expression": "staff_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "message_ticket_id_ticket_id_fk": {
+          "name": "message_ticket_id_ticket_id_fk",
+          "tableFrom": "message",
+          "columnsFrom": [
+            "ticket_id"
+          ],
+          "tableTo": "ticket",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "message_customer_id_customer_id_fk": {
+          "name": "message_customer_id_customer_id_fk",
+          "tableFrom": "message",
+          "columnsFrom": [
+            "customer_id"
+          ],
+          "tableTo": "customer",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "message_staff_id_staff_id_fk": {
+          "name": "message_staff_id_staff_id_fk",
+          "tableFrom": "message",
+          "columnsFrom": [
+            "staff_id"
+          ],
+          "tableTo": "staff",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "message_message_id_header_unique": {
+          "name": "message_message_id_header_unique",
+          "columns": [
+            "message_id_header"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "message_single_author_check": {
+          "name": "message_single_author_check",
+          "value": "num_nonnulls(\"message\".\"customer_id\", \"message\".\"staff_id\") = 1"
+        },
+        "message_received_no_delivery_check": {
+          "name": "message_received_no_delivery_check",
+          "value": "\"message\".\"customer_id\" IS NULL OR (\"message\".\"delivery_status\" IS NULL AND \"message\".\"recipients\" IS NULL AND \"message\".\"sent_at\" IS NULL)"
+        },
+        "message_sent_delivery_check": {
+          "name": "message_sent_delivery_check",
+          "value": "\"message\".\"staff_id\" IS NULL OR (\"message\".\"delivery_status\" IS NOT NULL AND \"message\".\"recipients\" IS NOT NULL)"
+        },
+        "message_delivery_status_check": {
+          "name": "message_delivery_status_check",
+          "value": "\"message\".\"delivery_status\" IN ('pending', 'sent', 'failed')"
+        },
+        "message_sent_at_check": {
+          "name": "message_sent_at_check",
+          "value": "(\"message\".\"delivery_status\" = 'sent') = (\"message\".\"sent_at\" IS NOT NULL)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.ticket_participant": {
+      "name": "ticket_participant",
+      "schema": "",
+      "columns": {
+        "ticket_id": {
+          "name": "ticket_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "ticket_participant_customer_id_idx": {
+          "name": "ticket_participant_customer_id_idx",
+          "columns": [
+            {
+              "expression": "customer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ticket_participant_ticket_id_ticket_id_fk": {
+          "name": "ticket_participant_ticket_id_ticket_id_fk",
+          "tableFrom": "ticket_participant",
+          "columnsFrom": [
+            "ticket_id"
+          ],
+          "tableTo": "ticket",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ticket_participant_customer_id_customer_id_fk": {
+          "name": "ticket_participant_customer_id_customer_id_fk",
+          "tableFrom": "ticket_participant",
+          "columnsFrom": [
+            "customer_id"
+          ],
+          "tableTo": "customer",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "ticket_participant_ticket_id_customer_id_pk": {
+          "name": "ticket_participant_ticket_id_customer_id_pk",
+          "columns": [
+            "ticket_id",
+            "customer_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ticket_event": {
+      "name": "ticket_event",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "uuidv7()"
+        },
+        "ticket_id": {
+          "name": "ticket_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "staff_id": {
+          "name": "staff_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "detail": {
+          "name": "detail",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "ticket_event_ticket_id_idx": {
+          "name": "ticket_event_ticket_id_idx",
+          "columns": [
+            {
+              "expression": "ticket_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "ticket_event_staff_id_idx": {
+          "name": "ticket_event_staff_id_idx",
+          "columns": [
+            {
+              "expression": "staff_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ticket_event_ticket_id_ticket_id_fk": {
+          "name": "ticket_event_ticket_id_ticket_id_fk",
+          "tableFrom": "ticket_event",
+          "columnsFrom": [
+            "ticket_id"
+          ],
+          "tableTo": "ticket",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ticket_event_staff_id_staff_id_fk": {
+          "name": "ticket_event_staff_id_staff_id_fk",
+          "tableFrom": "ticket_event",
+          "columnsFrom": [
+            "staff_id"
+          ],
+          "tableTo": "staff",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "ticket_event_kind_check": {
+          "name": "ticket_event_kind_check",
+          "value": "\"ticket_event\".\"kind\" IN ('status_changed', 'assigned', 'urgency_changed', 'category_changed', 'participant_added', 'participant_removed', 'marked_duplicate', 'archived', 'unarchived')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.ai_run": {
+      "name": "ai_run",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "uuidv7()"
+        },
+        "ticket_id": {
+          "name": "ticket_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "message_id": {
+          "name": "message_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "task": {
+          "name": "task",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prompt_version": {
+          "name": "prompt_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "latency_ms": {
+          "name": "latency_ms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "input_tokens": {
+          "name": "input_tokens",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "output_tokens": {
+          "name": "output_tokens",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "output": {
+          "name": "output",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "error_message": {
+          "name": "error_message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "ai_run_ticket_id_idx": {
+          "name": "ai_run_ticket_id_idx",
+          "columns": [
+            {
+              "expression": "ticket_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "ai_run_message_id_idx": {
+          "name": "ai_run_message_id_idx",
+          "columns": [
+            {
+              "expression": "message_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "ai_run_ticket_id_ticket_id_fk": {
+          "name": "ai_run_ticket_id_ticket_id_fk",
+          "tableFrom": "ai_run",
+          "columnsFrom": [
+            "ticket_id"
+          ],
+          "tableTo": "ticket",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "ai_run_message_id_message_id_fk": {
+          "name": "ai_run_message_id_message_id_fk",
+          "tableFrom": "ai_run",
+          "columnsFrom": [
+            "message_id"
+          ],
+          "tableTo": "message",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "ai_run_task_check": {
+          "name": "ai_run_task_check",
+          "value": "\"ai_run\".\"task\" IN ('classify', 'embed', 'draft')"
+        },
+        "ai_run_status_check": {
+          "name": "ai_run_status_check",
+          "value": "\"ai_run\".\"status\" IN ('succeeded', 'failed')"
+        },
+        "ai_run_status_error_check": {
+          "name": "ai_run_status_error_check",
+          "value": "(\n        (\"ai_run\".\"status\" <> 'failed' OR \"ai_run\".\"error_message\" IS NOT NULL)\n        AND\n        (\"ai_run\".\"error_message\" IS NULL OR \"ai_run\".\"status\" = 'failed')\n      )"
+        },
+        "ai_run_failed_output_check": {
+          "name": "ai_run_failed_output_check",
+          "value": "\"ai_run\".\"status\" <> 'failed' OR \"ai_run\".\"output\" IS NULL"
+        },
+        "ai_run_prompt_version_check": {
+          "name": "ai_run_prompt_version_check",
+          "value": "(\n        (\"ai_run\".\"task\" <> 'embed' OR \"ai_run\".\"prompt_version\" IS NULL)\n        AND\n        (\"ai_run\".\"task\" = 'embed' OR \"ai_run\".\"prompt_version\" IS NOT NULL)\n      )"
+        },
+        "ai_run_latency_check": {
+          "name": "ai_run_latency_check",
+          "value": "\"ai_run\".\"latency_ms\" >= 0"
+        },
+        "ai_run_input_tokens_check": {
+          "name": "ai_run_input_tokens_check",
+          "value": "\"ai_run\".\"input_tokens\" IS NULL OR \"ai_run\".\"input_tokens\" >= 0"
+        },
+        "ai_run_output_tokens_check": {
+          "name": "ai_run_output_tokens_check",
+          "value": "\"ai_run\".\"output_tokens\" IS NULL OR \"ai_run\".\"output_tokens\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.draft": {
+      "name": "draft",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "uuidv7()"
+        },
+        "ticket_id": {
+          "name": "ticket_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ai_run_id": {
+          "name": "ai_run_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "message_id": {
+          "name": "message_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "edited": {
+          "name": "edited",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "decided_by_staff_id": {
+          "name": "decided_by_staff_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "decided_at": {
+          "name": "decided_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "draft_ticket_id_idx": {
+          "name": "draft_ticket_id_idx",
+          "columns": [
+            {
+              "expression": "ticket_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "draft_ai_run_id_idx": {
+          "name": "draft_ai_run_id_idx",
+          "columns": [
+            {
+              "expression": "ai_run_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "draft_decided_by_staff_id_idx": {
+          "name": "draft_decided_by_staff_id_idx",
+          "columns": [
+            {
+              "expression": "decided_by_staff_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        },
+        "draft_ticket_id_pending_unique": {
+          "name": "draft_ticket_id_pending_unique",
+          "columns": [
+            {
+              "expression": "ticket_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "with": {},
+          "method": "btree",
+          "where": "\"draft\".\"status\" = 'pending'",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "draft_ticket_id_ticket_id_fk": {
+          "name": "draft_ticket_id_ticket_id_fk",
+          "tableFrom": "draft",
+          "columnsFrom": [
+            "ticket_id"
+          ],
+          "tableTo": "ticket",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "draft_ai_run_id_ai_run_id_fk": {
+          "name": "draft_ai_run_id_ai_run_id_fk",
+          "tableFrom": "draft",
+          "columnsFrom": [
+            "ai_run_id"
+          ],
+          "tableTo": "ai_run",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "draft_message_id_message_id_fk": {
+          "name": "draft_message_id_message_id_fk",
+          "tableFrom": "draft",
+          "columnsFrom": [
+            "message_id"
+          ],
+          "tableTo": "message",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "draft_decided_by_staff_id_staff_id_fk": {
+          "name": "draft_decided_by_staff_id_staff_id_fk",
+          "tableFrom": "draft",
+          "columnsFrom": [
+            "decided_by_staff_id"
+          ],
+          "tableTo": "staff",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "draft_message_id_unique": {
+          "name": "draft_message_id_unique",
+          "columns": [
+            "message_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "draft_status_check": {
+          "name": "draft_status_check",
+          "value": "\"draft\".\"status\" IN ('pending', 'sent', 'discarded')"
+        },
+        "draft_sent_check": {
+          "name": "draft_sent_check",
+          "value": "(\n        (\"draft\".\"status\" <> 'sent' AND \"draft\".\"message_id\" IS NULL AND \"draft\".\"edited\" IS NULL)\n        OR\n        (\"draft\".\"status\" = 'sent' AND \"draft\".\"message_id\" IS NOT NULL AND \"draft\".\"edited\" IS NOT NULL)\n      )"
+        },
+        "draft_decided_at_check": {
+          "name": "draft_decided_at_check",
+          "value": "(\"draft\".\"status\" <> 'pending') = (\"draft\".\"decided_at\" IS NOT NULL)"
+        },
+        "draft_decided_by_staff_check": {
+          "name": "draft_decided_by_staff_check",
+          "value": "(\n        (\"draft\".\"status\" <> 'pending' OR \"draft\".\"decided_by_staff_id\" IS NULL)\n        AND\n        (\"draft\".\"status\" <> 'sent' OR \"draft\".\"decided_by_staff_id\" IS NOT NULL)\n      )"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "views": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

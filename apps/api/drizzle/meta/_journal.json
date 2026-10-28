@@ -36,6 +36,20 @@
       "when": 1793076387070,
       "tag": "0004_draft_ai_run",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793163305105,
+      "tag": "0005_vector_extension",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793163938738,
+      "tag": "0006_ticket_embedding_job",
+      "breakpoints": true
     }
   ]
 }
