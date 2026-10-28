@@ -97,10 +97,29 @@ Numa **única transação**:
 **Grava primeiro, envia depois** (padrão *outbox*). A resposta já está no banco quando o
 envio acontece; se o envio falhar, o `job` tenta de novo.
 
-Se o processo cair **depois** de enviar e **antes** de marcar `sent`, a mensagem pode sair
-duas vezes. Como o `Message-ID` é o mesmo, o programa de e-mail do cliente mostra as duas
-cópias na mesma conversa. Se o provedor aceitar uma chave de idempotência, o `message.id`
-é a chave, e a duplicação não acontece.
+**O envio é pelo SMTP da própria caixa de suporte (Gmail)**, a mesma que o `mailer` lê por
+IMAP. Assim o `Message-ID` que o Lume gerou é mantido, e a resposta aparece em Enviados da
+caixa, como se alguém tivesse respondido de lá. Serviços de envio ficaram de fora: o SES
+troca o `Message-ID` pelo dele, e os outros não garantem manter o nosso.
+
+| | Gmail |
+|---|---|
+| SMTP | `smtp.gmail.com`, porta 465 (SSL) |
+| IMAP | `imap.gmail.com`, porta 993 (SSL) |
+| Login | o endereço da caixa + **senha de app** (exige verificação em duas etapas), no `.env` |
+| `From` | o endereço da caixa; outro endereço o Gmail reescreve |
+| Limite | ~500 destinatários por dia (conta pessoal); ~2000 no Workspace |
+
+**Não enviar duas vezes.** Se o processo cair **depois** de enviar e **antes** de marcar
+`sent`, o `job` volta e tentaria de novo. Por isso, **numa nova tentativa** (`attempts > 0`),
+antes de enviar o `mailer` procura o `Message-ID` na pasta de enviados pelo IMAP
+(`SEARCH HEADER Message-ID <id>`):
+- **achou:** o e-mail já saiu; só marca `sent`;
+- **não achou:** envia.
+
+A pasta de enviados é achada pelo atributo `\Sent` do `LIST`, não pelo nome, porque o
+Gmail traduz o nome da pasta para o idioma da conta. O Gmail salva sozinho em Enviados o
+que sai pelo SMTP; não precisa de `APPEND`.
 
 A ordem contrária (envia, depois grava) é pior: se a gravação falhar, o e-mail saiu e o
 Lume não sabe. A resposta do cliente chega com um `In-Reply-To` que não bate com nada.

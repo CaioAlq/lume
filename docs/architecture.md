@@ -10,7 +10,7 @@ related: docs/data-model/overview.md
 ```
 web (Angular) ──HTTP──▶ api (Bun/TS) ──┐
                                         ├──▶ Postgres + pgvector
-IMAP / provedor ◀──▶ mailer (Python) ──┤
+Gmail (IMAP+SMTP) ◀▶ mailer (Python) ──┤
                                         │
 llama.cpp ◀──HTTP── worker (Python) ───┘
 ```
@@ -18,7 +18,7 @@ llama.cpp ◀──HTTP── worker (Python) ───┘
 | Processo | Faz |
 |---|---|
 | `api` | login, telas do atendente, aprovar rascunho, responder, resolver, atribuir |
-| `mailer` | busca e-mails novos (IMAP), grava tickets e mensagens; envia as mensagens pendentes |
+| `mailer` | busca e-mails novos (IMAP), grava tickets e mensagens; envia as mensagens pendentes (SMTP), tudo pela caixa de suporte no Gmail |
 | `worker` | pipeline de IA: classificar, gerar embedding, buscar casos parecidos, redigir rascunho |
 
 Os processos **não conversam entre si**: cada um só lê e grava no banco. A fila de
