@@ -5,3 +5,5 @@ export * from './ticket.ts';
 export * from './message.ts';
 export * from './ticket_participant.ts';
 export * from './ticket_event.ts';
+export * from './ai_run.ts';
+export * from './draft.ts';
