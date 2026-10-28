@@ -14,7 +14,7 @@ Bun + TypeScript, Drizzle sobre Postgres 18. As regras do projeto inteiro estão
 | `apps/api/test/<modulo>/` | testes do módulo: cada `.spec.ts` espelha o arquivo que testa (`src/db/schema/customer.ts` → `test/db/schema/customer.spec.ts`) |
 | `apps/api/docs/<modulo>.md` | o doc do módulo: como o código dele deve ser escrito |
 
-Módulos hoje: **`db`** (conexão, schema e migrações; doc em `apps/api/docs/db.md`).
+Módulos hoje: **`db`** (conexão, schema e migrações; docs em `apps/api/docs/db.md` e `apps/api/docs/db-migrations.md`).
 
 **Módulo novo:** comece pelo teste (ver *Testes primeiro* no `AGENTS.md` da raiz): escreva o teste
 em `apps/api/test/<modulo>/`, veja falhar, e só então o código e o doc. O doc começa com o
@@ -34,9 +34,10 @@ related: docs/data-model/rules.md
 |---|---|
 | `bun run typecheck` | typecheck só da api |
 | `bun run test` | testes só da api; carrega o `.env` da raiz e precisa do banco no ar |
-| `bunx drizzle-kit generate --name <descricao>` | gera migração a partir do schema (ver `apps/api/docs/db.md`) |
+| `bunx drizzle-kit generate --name <descricao>` | gera migração a partir do schema (ver `apps/api/docs/db-migrations.md`) |
 
 ## Banco e testes
 
-Tudo sobre conexão, schema, migrações e os testes das regras do banco está em `apps/api/docs/db.md`.
+Conexão e schema estão em `apps/api/docs/db.md`; migrações e os testes das regras do banco, em
+`apps/api/docs/db-migrations.md`.
 Os testes em `apps/api/test/db/` rodam num banco descartável e passam pelo `apps/api/src/db/client.ts`.

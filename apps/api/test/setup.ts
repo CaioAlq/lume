@@ -15,7 +15,7 @@ if (!DB_PASSWORD || !DB_NAME) {
   throw new Error('Faltam DB_PASSWORD e/ou DB_NAME. Rode com `bun run test`, que carrega o .env da raiz');
 }
 if (!existsSync(join(MIGRATIONS, 'meta', '_journal.json'))) {
-  throw new Error('Nenhuma migração em apps/api/drizzle. Gere com `bunx drizzle-kit generate` (ver apps/api/docs/db.md)');
+  throw new Error('Nenhuma migração em apps/api/drizzle. Gere com `bunx drizzle-kit generate` (ver apps/api/docs/db-migrations.md)');
 }
 
 const admin = new pg.Client({

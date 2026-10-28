@@ -150,13 +150,20 @@ O vetor usado para achar **casos parecidos já resolvidos**.
 |---|---|
 | `ticket_id` | PK e FK → `ticket`. Um vetor por ticket |
 | `source_message_id` | FK → `message`. A mensagem que gerou o vetor: a primeira do cliente, que descreve o problema |
-| `model` | o modelo de embedding usado |
-| `embedding` | `vector(N)` do pgvector |
+| `model` | o modelo de embedding usado (`Qwen/Qwen3-Embedding-0.6B`) |
+| `embedding` | `vector(1024)` do pgvector |
 | `created_at` | |
 
 - Índice **HNSW** com `vector_cosine_ops` (busca por similaridade de cosseno).
-- `N` é fixado pelo modelo de embedding escolhido e **não muda depois**: trocar de modelo
-  exige recalcular todos os vetores.
+- O modelo é o **Qwen3-Embedding-0.6B**, com 1024 dimensões, o tamanho cheio dele. Roda
+  dentro do `worker`, na CPU: o servidor do llama.cpp roda um modelo só, e é o de texto.
+- O `1024` **não muda depois**: trocar de modelo exige recalcular todos os vetores.
+- A mesma instrução vai na frente dos dois textos comparados, porque a busca é de e-mail
+  contra e-mail.
+- **Um vetor por ticket:** a PK é o `ticket_id`.
+- Vetor com outro número de dimensões é recusado pelo próprio tipo `vector(1024)`.
+- **Índice em `source_message_id`** (a PK já cobre o `ticket_id`).
+- A extensão `vector` do pgvector é criada por uma migração antes da tabela.
 - **Por que busca vetorial, e não perguntar à LLM "isso é recorrente?":** a busca é
   determinística, rápida e testável. A LLM só redige, com os casos parecidos no contexto.
 
@@ -186,3 +193,20 @@ e-mail, e que a `api` avisa o `mailer` que tem resposta para enviar.
 - Falhou: `attempts + 1`, `run_after` cada vez mais longe; passou do limite, vira `failed`.
 - Processo caiu no meio: trabalho `running` com `locked_at` antigo volta para `pending`.
 - Índice parcial em `run_after` `WHERE status = 'pending'`.
+- **Índice em `message_id`:** o `UNIQUE (kind, message_id)` começa por `kind` e não serve
+  para buscar os trabalhos de uma mensagem.
+- Quem cria o trabalho só informa `kind` e `message_id`: o banco preenche `status = 'pending'`,
+  `attempts = 0`, `run_after = now()` e `created_at`.
+- `attempts` nunca é negativo.
+- `locked_at` preenchido se, e somente se, `status = 'running'`: quem termina ou devolve o
+  trabalho limpa o `locked_at`.
+- `failed` sempre tem `last_error`.
+
+**Tentativas.** Ficam como constantes no código do `worker` e do `mailer`, não no banco:
+
+- **Até 5 tentativas.** Na quinta falha, o trabalho vira `failed`.
+- **Espera entre elas:** 1, 5, 15 e 60 minutos (`run_after = now() + espera`). Uma falha
+  passageira, como o servidor da LLM desligado, tem cerca de 1h20 para passar.
+- **Trabalho travado:** `running` com `locked_at` de mais de 15 minutos volta para `pending`,
+  e isso **conta como tentativa**. Assim, um e-mail que derruba o processo não volta para a
+  fila para sempre.
