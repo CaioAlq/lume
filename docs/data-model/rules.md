@@ -30,7 +30,10 @@ o `mailer` e o `worker` em Python. Regra no código teria que existir em duas li
 | Falha sempre tem mensagem de erro e nunca resultado | `ai_run`: `CHECK` de `status` com `error_message` e `output` |
 | Só o embedding não tem versão de prompt | `ai_run`: `CHECK` de `task` com `prompt_version` |
 | Tempo e tokens nunca negativos | `ai_run`: `CHECK (coluna >= 0)` |
+| Um vetor por ticket, sempre com 1024 dimensões | `ticket_embedding`: PK `ticket_id`, tipo `vector(1024)` |
 | Um trabalho de cada tipo por mensagem | `job`: `UNIQUE (kind, message_id)` |
+| Trabalho em execução tem a hora em que foi pego | `job`: `CHECK` de `status` com `locked_at` |
+| Trabalho que falhou tem o erro; tentativas nunca negativas | `job`: `CHECK` de `status` com `last_error`, `CHECK (attempts >= 0)` |
 | Valores fechados (`status`, `kind`, `urgency`...) | `CHECK (coluna IN (...))` em cada tabela |
 
 **Valores fechados usam `text` + `CHECK`, não `ENUM` do Postgres:** acrescentar um valor novo

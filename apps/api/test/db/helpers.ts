@@ -8,6 +8,8 @@ export const CHECK_VIOLATION = '23514';
 export const UNIQUE_VIOLATION = '23505';
 export const FOREIGN_KEY_VIOLATION = '23503';
 export const NOT_NULL_VIOLATION = '23502';
+// O pgvector recusa vetor com o número errado de dimensões com este código genérico.
+export const DATA_EXCEPTION = '22000';
 
 export async function rows<T>(query: SQL): Promise<T[]> {
   const result = await db.execute(query);

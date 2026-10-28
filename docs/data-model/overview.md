@@ -80,12 +80,8 @@ ORDER BY recorded_at, id
 
 Não mudam a modelagem, mas precisam de decisão ao escrever o código.
 
-1. **Modelo de embedding e o `N` do vetor.** O llama.cpp roda um modelo por servidor, então
-   o embedding precisa de um segundo servidor ou de uma biblioteca no `worker`. O `N` é
-   fixado na migração da `ticket_embedding`.
-2. **Texto citado nas respostas.** Quem responde um e-mail costuma arrastar a conversa
+1. **Texto citado nas respostas.** Quem responde um e-mail costuma arrastar a conversa
    inteira citada embaixo (`> ...`). O `body` precisa ficar sem isso, tanto para exibir
    quanto para a IA ler.
-3. **Provedor de envio.** Qual (Resend, Postmark, SES...), e se aceita chave de
+2. **Provedor de envio.** Qual (Resend, Postmark, SES...), e se aceita chave de
    idempotência.
-4. **Limite de tentativas** do `job` e o intervalo entre elas.
