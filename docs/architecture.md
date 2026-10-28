@@ -33,7 +33,7 @@ o que é compartilhado entre apps TypeScript fica em `packages/`.
 |---|---|---|
 | `apps/api/` | a api | Bun + TypeScript + Drizzle |
 | `apps/web/` | as telas do atendente (ainda não existe) | Angular |
-| `apps/mailer/` | IMAP e envio (ainda não existe) | Python + uv |
+| `apps/mailer/` | IMAP e envio | Python + uv |
 | `apps/worker/` | pipeline de IA (ainda não existe) | Python + uv |
 | `packages/shared/` | tipos e contratos que a api e o web dividem | TypeScript |
 | `docs/` | docs do projeto inteiro: esta arquitetura, a modelagem e as decisões (`adr/`) | |

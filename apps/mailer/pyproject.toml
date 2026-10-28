@@ -1,0 +1,19 @@
+[project]
+name = "lume-mailer"
+version = "0.1.0"
+description = "Lê a caixa de suporte (IMAP) e envia as respostas (SMTP)"
+requires-python = ">=3.14"
+dependencies = ["psycopg[binary]>=3.2"]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["uv_build>=0.9,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "mailer"
+
+[tool.pytest.ini_options]
+testpaths = ["test"]

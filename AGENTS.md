@@ -11,6 +11,7 @@ do app e este juntos. Para uma tarefa que cruza apps, abra na raiz e leia o do a
 | App | Regras do app |
 |---|---|
 | api | `apps/api/AGENTS.md` |
+| mailer | `apps/mailer/AGENTS.md` |
 | web | `apps/web/AGENTS.md` (nasce junto com o app; ainda não existe) |
 
 ---
@@ -21,7 +22,7 @@ Monorepo com workspaces do Bun. Mapa completo e o porquê em `docs/architecture.
 `docs/adr/0001-estrutura-do-monorepo.md`.
 
 ```
-apps/<app>/          um app por processo (hoje só apps/api)
+apps/<app>/          um app por processo (hoje apps/api e apps/mailer)
   AGENTS.md          regras só do app: o que faz, módulos, comandos
   docs/<modulo>.md   um doc por módulo, não por arquivo
   src/<modulo>/      código, organizado por módulo
