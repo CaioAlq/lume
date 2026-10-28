@@ -57,13 +57,14 @@ Decisão de arquitetura nova vira um ADR em `docs/adr/`, numerado (`0002-...md`)
 | Comando | Para quê |
 |---|---|
 | `bun install` | instala as dependências de todos os apps e pacotes |
-| `bun run db:up` | liga o OrbStack (no Mac) e sobe o Postgres, esperando ele ficar pronto; precisa do `.env` (sai do `.env.example`) |
+| `bun run db:up` | liga o OrbStack (no Mac) e sobe o Postgres, esperando ele ficar pronto; lê o `.env.example` (e o `.env`, se existir) |
 | `bun run typecheck` | typecheck de todos os workspaces |
 | `bun run test` | testes de todos os workspaces (precisa do banco no ar) |
 
-**Não leia o `.env`** (nem com `cat`, `read` ou `--env-file` escrito à mão): ele guarda a senha do
-banco, e a leitura é bloqueada. Os scripts acima já carregam o `.env`. Os nomes das variáveis estão
-no `.env.example`, e onde cada uma é usada (porta, banco) está no `compose.yaml`.
+**A configuração do banco local está no `.env.example`**, e pode ser lida: o banco é local e de
+testes, então a senha dele não é segredo. Os scripts acima já carregam esse arquivo.
+**Não leia o `.env`** (nem com `cat`, `read` ou `--env-file` escrito à mão): ele existe só para
+segredo de verdade (senha de app do Gmail, banco de produção), e a leitura é bloqueada.
 
 ---
 

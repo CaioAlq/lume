@@ -91,7 +91,7 @@ e com o mesmo nome do arquivo do schema. Eles são a prova de
 que a tarefa terminou: **a tarefa só está pronta quando `bun run test` passa**.
 
 Como funcionam: antes de tudo, o `apps/api/test/setup.ts` cria um banco descartável no Postgres do
-`.env`, aplica as migrações de `apps/api/drizzle/` e conecta **pelo próprio `apps/api/src/db/client.ts`**. No fim,
+`.env.example` (e do `.env`), aplica as migrações de `apps/api/drizzle/` e conecta **pelo próprio `apps/api/src/db/client.ts`**. No fim,
 apaga o banco. Então um `bun run test` verde também prova que as migrações aplicam e que a
 conexão abre. Precisa do banco no ar: `bun run db:up`, da raiz.
 

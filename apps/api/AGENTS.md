@@ -33,7 +33,7 @@ related: docs/data-model/rules.md
 | Comando | Para quê |
 |---|---|
 | `bun run typecheck` | typecheck só da api |
-| `bun run test` | testes só da api; carrega o `.env` da raiz e precisa do banco no ar |
+| `bun run test` | testes só da api; carrega o `.env.example` e o `.env` da raiz e precisa do banco no ar |
 | `bunx drizzle-kit generate --name <descricao>` | gera migração a partir do schema (ver `apps/api/docs/db-migrations.md`) |
 
 ## Banco e testes

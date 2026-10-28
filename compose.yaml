@@ -3,7 +3,7 @@ services:                     # cada "service" vira um container
     image: pgvector/pgvector:pg18        # imagem e versão a baixar
 
     environment:              # variáveis de ambiente DENTRO do container
-      POSTGRES_PASSWORD: ${DB_PASSWORD}   # ${...} = valor lido do arquivo .env
+      POSTGRES_PASSWORD: ${DB_PASSWORD}   # ${...} = valor do .env.example (ou do .env)
       POSTGRES_DB: ${DB_NAME}
 
     ports:
