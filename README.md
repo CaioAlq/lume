@@ -153,7 +153,6 @@ O projeto está em construção, em fatias.
 Pré-requisitos: Bun e Docker (no Mac, OrbStack ou Docker Desktop).
 
 ```bash
-cp .env.example .env               # e troque os valores marcados
 bun run db:up                      # liga o OrbStack (no Mac) e sobe o Postgres 18
 bun install
 bun run typecheck

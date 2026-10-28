@@ -15,6 +15,6 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "bun --env-file=../../.env test"
+    "test": "bun --env-file=../../.env.example --env-file=../../.env test"
   }
 }

@@ -6,10 +6,9 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-if [[ ! -f .env ]]; then
-  echo "Falta o .env na raiz. Crie com: cp .env.example .env (e troque os valores)" >&2
-  exit 1
-fi
+# O .env.example traz a configuração do banco local; um .env, se existir, vale por cima.
+env_files=(--env-file .env.example)
+[[ -f .env ]] && env_files+=(--env-file .env)
 
 # O docker compose não liga o Docker: só conversa com ele. No Mac, quem traz o Docker é o
 # OrbStack, e `orb start` não faz nada se ele já estiver ligado.
@@ -23,5 +22,5 @@ if ! docker info >/dev/null 2>&1; then
 fi
 
 # --wait espera o healthcheck do compose.yaml: quando o comando volta, o banco já aceita conexão.
-docker compose up -d --wait database
+docker compose "${env_files[@]}" up -d --wait database
 echo "Banco no ar."

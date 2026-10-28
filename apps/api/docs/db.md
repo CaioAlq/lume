@@ -40,7 +40,7 @@ import * as schema from './schema/index.ts';
 // Falha na hora se faltar variável, em vez de montar uma conexão com "undefined".
 const { DB_PASSWORD, DB_NAME, DB_PORT } = process.env;
 if (!DB_PASSWORD || !DB_NAME) {
-  throw new Error('Faltam DB_PASSWORD e/ou DB_NAME (o .env fica na raiz do projeto)');
+  throw new Error('Faltam DB_PASSWORD e/ou DB_NAME (ficam no .env.example da raiz)');
 }
 
 const pool = new Pool({
@@ -67,9 +67,11 @@ Por que assim:
 
 ## Variáveis de ambiente
 
-O `.env` fica na **raiz** do projeto, mas a api roda de dentro de `apps/api/`, e o Bun só carrega
-o `.env` da pasta atual. Por isso, todo script do `package.json` que precisa do banco roda
-com `bun --env-file=../../.env ...`. Não copie o `.env` para dentro de `apps/api/`.
+A configuração do banco local está no `.env.example` da **raiz**; um `.env` ali, se existir, vale
+por cima. A api roda de dentro de `apps/api/`, e o Bun só carrega o `.env` da pasta atual. Por isso,
+todo script do `package.json` que precisa do banco roda com
+`bun --env-file=../../.env.example --env-file=../../.env ...` (o segundo vale por cima; se não
+existir, o Bun ignora). Não copie esses arquivos para dentro de `apps/api/`.
 
 ## `apps/api/drizzle.config.ts`
 

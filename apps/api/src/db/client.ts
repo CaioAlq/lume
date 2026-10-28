@@ -5,7 +5,7 @@ import * as schema from './schema/index.ts';
 // Falha na hora se faltar variável, em vez de montar uma conexão com "undefined".
 const { DB_PASSWORD, DB_NAME, DB_PORT } = process.env;
 if (!DB_PASSWORD || !DB_NAME) {
-  throw new Error('Faltam DB_PASSWORD e/ou DB_NAME (o .env fica na raiz do projeto)');
+  throw new Error('Faltam DB_PASSWORD e/ou DB_NAME (ficam no .env.example da raiz)');
 }
 
 const pool = new Pool({
