@@ -83,5 +83,3 @@ Não mudam a modelagem, mas precisam de decisão ao escrever o código.
 1. **Texto citado nas respostas.** Quem responde um e-mail costuma arrastar a conversa
    inteira citada embaixo (`> ...`). O `body` precisa ficar sem isso, tanto para exibir
    quanto para a IA ler.
-2. **Provedor de envio.** Qual (Resend, Postmark, SES...), e se aceita chave de
-   idempotência.
