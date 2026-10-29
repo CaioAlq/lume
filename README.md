@@ -5,9 +5,15 @@ suporte de um app: a IA classifica cada mensagem por urgência, encontra casos p
 resolvidos e redige a resposta. Um humano revisa e envia. Nenhum e-mail de cliente sai para uma
 API externa de IA.
 
-O projeto também é um experimento sobre **desenvolvimento com LLM local**: boa parte do código é
-escrita por um modelo open-weight rodando numa GPU de notebook, guiado por testes escritos antes e
-por documentação feita para ser lida por agentes.
+O projeto também é um experimento sobre **desenvolvimento com IA guiado por testes**: as decisões
+e os testes vêm antes, o código é escrito por um agente, e cada mudança no fluxo é medida.
+
+## Por que este projeto
+
+A ideia veio de uma dor comum de quem trabalha como freelancer e atende vários clientes: os pedidos
+de suporte chegam por e-mail, misturados na caixa de entrada, e é fácil perder o fio de uma conversa,
+esquecer quem está esperando resposta ou responder de novo algo que já foi resolvido antes. O Lume
+organiza isso em tickets, ordena pela urgência e já sugere a resposta com base nos casos parecidos.
 
 ---
 
@@ -16,8 +22,9 @@ por documentação feita para ser lida por agentes.
 - **IA local no produto.** Classificação, busca por similaridade (pgvector) e rascunho de resposta
   com um modelo servido pelo `llama.cpp`, sem depender de API paga nem mandar dado de cliente para
   fora.
-- **IA local no desenvolvimento.** Um modelo de 35B parâmetros rodando numa RTX 4060 de notebook
-  (8 GB) escreve código de produção. As decisões e a revisão ficam com um humano.
+- **Desenvolvimento com agentes, medido.** O código começou sendo escrito por um modelo local numa
+  GPU de notebook; medindo na mesma tarefa, o fluxo passou para um modelo pequeno na nuvem como
+  implementador, com testes e revisão por mutação. Os números estão abaixo.
 - **Testes antes do código, no projeto inteiro.** Todo comportamento novo começa por um teste que
   falha: regras do banco, endpoints da api, telas do web, etapas do pipeline da IA. O agente só
   termina quando os testes passam. É o teste, não a opinião do modelo, que diz o que está pronto.
@@ -33,7 +40,7 @@ por documentação feita para ser lida por agentes.
 ```
 web (Angular) ──HTTP──▶ api (Bun/TS) ──┐
                                         ├──▶ Postgres + pgvector
-IMAP / provedor ◀──▶ mailer (Python) ──┤
+Gmail (IMAP+SMTP) ◀▶ mailer (Python) ──┤
                                         │
 llama.cpp ◀──HTTP── worker (Python) ───┘
 ```
@@ -56,55 +63,63 @@ programas em duas linguagens gravam nas mesmas tabelas. Detalhes em
 
 ---
 
-## Desenvolvimento com LLM local
+## Desenvolvimento com agentes
 
-### O hardware
+**A concepção do projeto e toda a arquitetura são minhas:** a divisão em processos (api, mailer e
+worker que só conversam pelo banco), a modelagem das tabelas e as regras que o banco garante, o
+threading de e-mail, a fila em Postgres no lugar do Redis e o fluxo de trabalho com os agentes. A IA
+escreve o código a partir dessas decisões, e todo PR passa pela minha aprovação antes do merge.
+
+### O fluxo
+
+1. **Humano decide** o comportamento e as regras (em `docs/`), e **tudo vira teste antes do código**.
+2. **Um agente implementa** até os testes passarem, sem poder mudar os testes, fazer commit, trocar
+   de branch nem ler segredos (regras de permissão na ferramenta, não só no prompt).
+3. **Revisão** do diff contra os docs e **teste de mutação**: o código é estragado de propósito, um
+   ponto por vez, para provar que os testes pegam o erro. O que escapa vira teste novo.
+
+Hoje o **Claude Opus** escreve os testes e os docs e faz a revisão; o **Claude Haiku** implementa.
+
+### Fase 1: LLM local como implementador
 
 | | |
 |---|---|
 | Servidor do modelo | PC com **RTX 4060 Laptop (8 GB de VRAM)** e **32 GB de RAM**, `llama.cpp` |
-| Modelo | **Ornith 1.5 35B A3B** (MoE, ~3B ativos por token), quantizado em Q4_K_L (~21 GB) |
-| Como cabe | camadas de atenção na GPU, experts do MoE na RAM (`--n-cpu-moe`), contexto de 131k tokens |
-| Velocidade | ~37 tokens/s de geração |
-| Cliente | Agente de código [pi](https://github.com/earendil-works/pi) apontando para o servidor na rede local |
+| Modelos | MoE open-weight de ~35B (poucos bilhões ativos por token), quantizados em ~Q4 |
+| Cliente | agente de código [pi](https://github.com/earendil-works/pi), na rede local |
 
-### Como o modelo foi escolhido
-
-Combinando benchmarks públicos de código com testes próprios em tarefas parecidas com as do
-projeto (editar arquivos com precisão, usar ferramentas, depurar), rodados com os mesmos parâmetros
-do uso real. Entre os modelos que cabem nesse hardware, o Ornith 1.5 teve o melhor resultado.
-
-### O fluxo
-
-1. **Humano decide** o comportamento e as regras (em `docs/`), e **tudo vira teste antes do código**:
-   hoje as regras do banco; a seguir os endpoints, as telas e o pipeline da IA.
-2. **O agente local implementa** com o doc da área no contexto e termina rodando `bun run typecheck`
-   e `bun run test`.
-3. **Revisão** do diff contra os docs, com ajuda do Claude Code. O que o agente errou vira regra
-   nova no doc ou teste novo, nunca só uma correção pontual.
-
-### O que mudou o resultado, medido
-
-Na mesma tarefa (conexão, schema e migrações das três primeiras tabelas), com o mesmo modelo:
+O que mudou o resultado, na mesma tarefa (conexão, schema e migrações das três primeiras tabelas):
 
 | Configuração | Resultado |
 |---|---|
-| Modelagem num doc longo, sem testes | **9 de 13** checagens automáticas (conexão, migração e regras do banco); a conexão travava sem dar erro |
+| Modelagem num doc longo, sem testes | **9 de 13** checagens automáticas; a conexão travava sem dar erro |
 | Docs curtos por área + 18 testes escritos antes | **18 de 18** testes passando, typecheck limpo |
 
-E o que **não** funcionou, também medido e descartado:
+E o que **não** funcionou, medido e descartado: pedir ao modelo que revisasse o próprio trabalho
+(nenhum ganho e ~55% mais tempo) e dar ferramentas extras ao agente (muitos tokens, quase nenhum uso).
 
-- **Pedir ao modelo que revisasse o próprio trabalho** antes de terminar: nenhum ganho de nota e
-  ~55% mais tempo. O modelo confirma o que já acredita; um teste falhando traz informação nova.
-- **Ferramentas extras no agente**: ~3.600 tokens a mais por requisição e quase nenhum uso. O agente
-  ficou só com uma camada de permissões e uma extensão própria que entrega ao modelo o doc certo
-  quando ele toca um arquivo da área.
+### Fase 2: a medição que mudou o fluxo
+
+Na tarefa do recebimento de e-mail (`apps/mailer`, 27 testes e esqueleto prontos):
+
+| | LLM local (~35B, Q4) | Claude Haiku |
+|---|---|---|
+| Testes | **0 de 27** em 3 tentativas | **27 de 27** |
+| Tempo | ~58 min somados | ~2 min |
+| Comportamento | estourou o limite de saída tentando planejar tudo de uma vez; numa tentativa, contornou um bloqueio e expôs a senha do banco local | parou e apontou um erro **no teste**, sem mudá-lo |
+
+Duas lições ficaram no fluxo: **as regras de permissão precisam bloquear o contorno**, não só o
+comando (o agente que não lê o `.env` também não pode rodar `docker inspect`), e **o ponto fraco
+passou a ser o teste, não o código**: o teste de mutação achou lacunas nos testes em todas as tarefas.
+
+A IA **do produto** continua local: classificação, embedding e rascunho rodam no `llama.cpp`, e
+nenhum e-mail de cliente vai para uma API externa.
 
 ---
 
 ## Documentação para agentes
 
-- **`AGENTS.md` na raiz** com as regras do projeto e **um por app** (`apps/api/AGENTS.md`). Abrindo o
+- **`AGENTS.md` na raiz** com as regras do projeto e **um por app** (`apps/api/AGENTS.md`, `apps/mailer/AGENTS.md`). Abrindo o
   agente na pasta do app, ele carrega os dois desde o primeiro turno.
 - **Docs curtos (até ~250 linhas)** com um cabeçalho que liga o doc às pastas onde ele vale:
 
@@ -130,8 +145,10 @@ E o que **não** funcionou, também medido e descartado:
 | banco | Postgres 18 + pgvector, UUIDv7, regras em `CHECK`/`UNIQUE` |
 | testes | escritos antes do código: `bun test` na api (contra um Postgres de verdade, num banco descartável por execução), `pytest` no Python, o runner do Angular no web |
 | web | Angular (planejado) |
-| mailer e worker | Python, uv, ruff, pytest (planejado) |
-| LLM | `llama.cpp` com modelo open-weight local |
+| mailer | Python, uv, psycopg, pytest; e-mail pelo Gmail (IMAP + SMTP) |
+| worker | Python, uv, pytest (planejado) |
+| LLM do produto | `llama.cpp` com modelo open-weight local; embeddings com Qwen3-Embedding-0.6B |
+| desenvolvimento | Claude Code (Opus orquestra e revisa, Haiku implementa), teste de mutação |
 | infra | Docker Compose, monorepo com workspaces do Bun |
 
 ---
@@ -140,9 +157,10 @@ E o que **não** funcionou, também medido e descartado:
 
 O projeto está em construção, em fatias.
 
-- **Pronto:** estrutura do monorepo, modelagem completa da v1 documentada, módulo de banco da api
-  (`customer`, `staff`, `staff_session`) com migrações e 18 testes das regras.
-- **Próximo:** tabelas `ticket` e `message`, depois o restante do banco, o mailer e o worker.
+- **Pronto:** modelagem completa da v1 (11 tabelas, com `pgvector` e a fila de jobs) com migrações
+  e **143 testes** das regras do banco; o **recebimento de e-mail** no mailer (threading,
+  participantes, status, idempotência) com **27 testes**.
+- **Próximo:** o mailer lendo a caixa do Gmail por IMAP, depois o worker de IA e as telas do atendente.
 - **Meta da v1:** a fatia ponta a ponta. Um e-mail chega, vira ticket, a IA sugere uma resposta, o
   atendente aprova e o e-mail é enviado.
 
@@ -156,14 +174,19 @@ Pré-requisitos: Bun e Docker (no Mac, OrbStack ou Docker Desktop).
 bun run db:up                      # liga o OrbStack (no Mac) e sobe o Postgres 18
 bun install
 bun run typecheck
-bun run test
+bun run test                       # api: 143 testes contra um Postgres de verdade
+cd apps/mailer && uv run pytest    # mailer: precisa do uv
 ```
+
+O banco local usa a configuração do `.env.example` (senha só de desenvolvimento, ele escuta só em
+`127.0.0.1`). O `.env` fica para segredo de verdade, como a senha de app do Gmail.
 
 ## Estrutura
 
 | Pasta | O que é |
 |---|---|
 | `apps/api/` | a api, organizada por módulo (`src/`, `test/` e `docs/` com o mesmo nome) |
+| `apps/mailer/` | o mailer em Python (`src/mailer/`, `test/`) |
 | `packages/shared/` | tipos e contratos que a api e o web dividem |
 | `docs/` | arquitetura, modelagem do banco e decisões (`adr/`) |
 | `scripts/` | scripts do projeto (ex.: subir o banco) |
