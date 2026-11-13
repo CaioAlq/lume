@@ -1,5 +1,7 @@
 # Lume
 
+[![CI](https://github.com/CaioAlq/lume/actions/workflows/ci.yml/badge.svg)](https://github.com/CaioAlq/lume/actions/workflows/ci.yml)
+
 **Helpdesk por e-mail com IA que roda na sua máquina.** Um endereço de e-mail é o único canal de
 suporte de um app: a IA classifica cada mensagem por urgência, encontra casos parecidos já
 resolvidos e redige a resposta. Um humano revisa e envia. Nenhum e-mail de cliente sai para uma
@@ -190,3 +192,7 @@ O banco local usa a configuração do `.env.example` (senha só de desenvolvimen
 | `packages/shared/` | tipos e contratos que a api e o web dividem |
 | `docs/` | arquitetura, modelagem do banco e decisões (`adr/`) |
 | `scripts/` | scripts do projeto (ex.: subir o banco) |
+
+## Licença
+
+[MIT](LICENSE)
